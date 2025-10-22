@@ -1,18 +1,19 @@
 services:
   backend:
-    container_name: be
+    container_name: rups-be
     image: node-backend
     build:
-      dockerfile: ./dev.dockerfile
+      dockerfile: ./deploy/dev.dockerfile
       context: ../
     ports:
       - 5000:5000
     env_file:
-      ../.env
+      - ../.env
     volumes:
-      - ../:/usr/src/app
+      - ../:/usr/src/app/
+
   postgres:
-    container_name: db
+    container_name: rups-db
     image: postgres:17
     restart: always
     environment:
@@ -20,4 +21,3 @@ services:
       POSTGRES_USER: be
       POSTGRES_PASSWORD: passwd
 
-  

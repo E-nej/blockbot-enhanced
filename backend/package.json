@@ -6,13 +6,14 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "lint": "eslint . --max-warnings 0",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint -- --fix",
+    "start:dev": "npx ts-node src/index.ts",
+    "migrate": "node-pg-migrate"
   },
   "dependencies": {
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "node-pg-migrate": "^7.9.1",
-    "pg": "^8.16.0",
+    "pg": "^8.16.3",
     "pino": "^9.7.0",
     "pino-http": "^10.4.0",
     "zod": "^3.25.48"
@@ -26,6 +27,7 @@
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.1",
+    "node-pg-migrate": "^8.0.3",
     "prettier": "^3.5.3",
     "supertest": "^7.1.1",
     "tsx": "^4.19.4",
