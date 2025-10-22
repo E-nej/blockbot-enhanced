@@ -1,0 +1,19 @@
+services:
+  postgres-dev:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: api_dev
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: password
+    ports:
+      - 4329:5432
+  postgres-test:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: api_test
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: password
+    ports:
+      - 4328:5432
