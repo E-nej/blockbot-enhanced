@@ -1,0 +1,23 @@
+services:
+  backend:
+    container_name: be
+    image: node-backend
+    build:
+      dockerfile: ./dev.dockerfile
+      context: ../
+    ports:
+      - 5000:5000
+    env_file:
+      ../.env
+    volumes:
+      - ../:/usr/src/app
+  postgres:
+    container_name: db
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: blockbot
+      POSTGRES_USER: be
+      POSTGRES_PASSWORD: passwd
+
+  
