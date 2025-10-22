@@ -1,6 +1,29 @@
 import { HttpError } from '../errors';
 import { getPool } from './pool';
-import { Person } from './types';
+
+export interface Queries {
+  checkConnection(): Promise<boolean>;
+  /*getAllPeople(): Promise<Person[]>;
+  addPerson(person: Person): Promise<Person>;*/
+}
+
+export const makeQueries = (databaseUrl: string): Queries => {
+    const pool = getPool(databaseUrl);
+
+    return {
+        checkConnection: async () => {
+            try {
+                const { rows } = await pool.query<{ conn_test: number }>('SELECT 1 as conn_test');
+                return rows[0].conn_test === 1;
+            } catch {
+                return false;
+            }
+        },
+    };
+}
+
+
+/*import { Person } from './types';
 
 export interface Queries {
   checkConnection(): Promise<boolean>;
@@ -44,4 +67,4 @@ export const makeQueries = (databaseUrl: string): Queries => {
       return rows[0];
     },
   };
-};
+};*/

@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { Person } from '../database/types';
+//import { Person } from '../database/types';
 import { AppContext } from '../app';
 
-export interface PeopleController {
+/*export interface PeopleController {
   getAllPeople(req: Request, res: Response<Person[]>, next: NextFunction): Promise<void>;
   addPerson(req: Request, res: Response<Person>, next: NextFunction): Promise<void>;
 }
@@ -19,4 +19,4 @@ export const makePeopleController = ({ queries }: AppContext): PeopleController 
       res.send(newPerson);
     },
   };
-};
+};*/
