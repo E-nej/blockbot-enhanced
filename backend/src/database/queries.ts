@@ -1,10 +1,16 @@
 import { HttpError } from '../errors';
 import { getPool } from './pool';
-import { LevelsUsers, User } from './types'
+import { Leaderboard, LevelsUsers, User, UsersLeaderboard } from './types'
 import bcrypt from 'bcrypt'
 
 export interface Queries {
   checkConnection(): Promise<boolean>;
+  addToLeaderbaord(user: number, leaderboard: number): Promise<void>;
+  removeFromLeaderbaord(user: number): Promise<void>;
+  getUserLeaderdboard(user: number): Promise<UsersLeaderboard | null>;
+  removeLeaderboard(creator: number): Promise<void>;
+  createLeaderbaord(name: string, creator: number): Promise<Leaderboard>;
+  getLeaderboardByUser(creator: number): Promise<Leaderboard | null>;
   createUser(username: string, email: string, password: string): Promise<User>;
   getUserByUsername(username: string): Promise<User | null>;
   getUserById(id: number): Promise<User | null>;
@@ -28,10 +34,84 @@ export const makeQueries = (databaseUrl: string): Queries => {
             }
         },
 
+        addToLeaderbaord: async (user: number, leaderboard: number) => {
+            const { rowCount } = await pool.query<UsersLeaderboard>(
+                `INSERT INTO "users_leaderboard" (user, leaderboard)
+                 VALUES ($1, $2)
+                 RETURNING id, user, leaderboard`,
+                 [user, leaderboard]
+            );
+
+            if (rowCount === 0) {
+                throw new HttpError(500, "Failed to add user to leaderboard");
+            }
+        }, 
+
+        removeFromLeaderbaord: async (user: number) => {
+            const { rowCount } = await pool.query(
+                `DELETE FROM "users_leaderboard" WHERE user = $1`,
+                [user]
+            );
+
+            if(rowCount === 0) {
+                throw new HttpError(404, "User not in any leaderbaords");
+            }
+        },
+  
+        getUserLeaderdboard: async (user: number) => {
+            const { rows, rowCount } = await pool.query<UsersLeaderboard>(
+                `SELECT id, user, Leaderboard
+                 FROM "users_leaderboard"
+                 WHERE user = $1`,
+                [user]
+            );
+
+            return rows[0] || null;
+        },
+
+        removeLeaderboard: async (creator: number) => {
+            const { rowCount } = await pool.query(
+                `DELETE FROM "leaderboard" WHERE creator = $1`,
+                [creator]
+            );
+
+            if(rowCount === 0) {
+                throw new HttpError(404, "Failed to delete specified leaderboard");
+            }
+        },
+
+
+
+        getLeaderboardByUser: async (creator: number) => {
+            const { rows } = await pool.query<Leaderboard>(
+                `SELECT id, name, creator, "createdAt"
+                 FROM "leaderboard"
+                 WHERE id = $1
+                 LIMIT 1`,
+                [creator] 
+            );
+            
+            return rows[0] || null;
+        },
+
+        createLeaderbaord: async (name: string, creator: number) => {
+            const { rows, rowCount } = await pool.query<Leaderboard>(
+                `INSERT INTO "leaderboard" (name, creator)
+                 VALUES ($1, $2)
+                 RETURNING id, name, creator, "createdAt"`,
+                 [name, creator]
+            );
+
+            if (rowCount !== 1) {
+                throw new HttpError(500, 'Failed to create leaderboard');
+            }
+
+            return rows[0];
+        },
+
         createUser: async (username: string, email: string, password: string) => {
             try {
                 const hashedPassword = await bcrypt.hash(password, 16)
-                console.log("Hashed passwrod: ", hashedPassword)
                 const { rows, rowCount } = await pool.query<User>(
                     `INSERT INTO "user" (username, email, password)
                      VALUES ($1, $2, $3)
