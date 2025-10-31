@@ -5,12 +5,16 @@ services:
     build:
       dockerfile: ./deploy/dev.dockerfile
       context: ../
+      platforms:
+        - linux/arm64
     ports:
-      - 5000:5000
+      - 5050:5000
     env_file:
       - ../.env
     volumes:
-      - ../:/usr/src/app/
+      - ../src:/usr/src/app/src
+      - ../migrations:/usr/src/app/migrations
+      - ../.env:/usr/src/app/.env
 
   postgres:
     container_name: rups-db

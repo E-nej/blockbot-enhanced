@@ -3,4 +3,8 @@ FROM node:20-alpine
 # Create app directory
 WORKDIR /usr/src/app
 
-ENTRYPOINT ["/bin/sh", "-c", "npm run start:dev"]
+COPY ../package.json ../tsconfig.json ../eslint.config.mjs ../vitest.config.mts ../.env /usr/src/app/
+
+RUN npm i
+
+ENTRYPOINT ["/bin/sh", "-c", "npm run dev"]

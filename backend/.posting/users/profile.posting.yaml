@@ -1,0 +1,5 @@
+name: Profile
+url: http://localhost:5050/users/profile
+headers:
+- name: Authorization
+  value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoiamFuIiwiZW1haWwiOiJqYW5Acmlib2xpLm1lIiwiaWF0IjoxNzYxOTM2Njc4LCJleHAiOjE3NjE5NDAyNzh9.wvgL7zypyYenJNl_6F7Afti78HmuLjIECdcTwvcKNY4
