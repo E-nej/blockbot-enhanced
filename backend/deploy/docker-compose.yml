@@ -5,8 +5,6 @@ services:
     build:
       dockerfile: ./deploy/dev.dockerfile
       context: ../
-      platforms:
-        - linux/arm64
     ports:
       - 5050:5000
     env_file:
