@@ -1,12 +1,13 @@
 import { HttpError } from '../errors';
 import { getPool } from './pool';
-import { Leaderboard, LevelsUsers, User, UsersLeaderboard } from './types'
+import { Leaderboard, LevelsUsers, LeaderboardRow, User, UsersLeaderboard } from './types'
 import bcrypt from 'bcrypt'
 
 export interface Queries {
   checkConnection(): Promise<boolean>;
   addToLeaderbaord(user: number, leaderboard: number): Promise<void>;
   removeFromLeaderbaord(user: number): Promise<void>;
+  getLeaderboardData(leaderboard: number): Promise<Array<LeaderboardRow>>
   getUserLeaderdboard(user: number): Promise<UsersLeaderboard | null>;
   removeLeaderboard(creator: number): Promise<void>;
   createLeaderbaord(name: string, creator: number): Promise<Leaderboard>;
@@ -25,6 +26,22 @@ export const makeQueries = (databaseUrl: string): Queries => {
     const pool = getPool(databaseUrl);
 
     return {
+        getLeaderboardData: async (leaderboard: number) => {
+            const { rows } = await pool.query<LeaderboardRow>(`
+                    SELECT
+                        ul.user AS user,
+                        SUM(lu.blocks_used) AS blocks 
+                    FROM users_leaderboard ul
+                    JOIN levels_users lu ON lu.user = ul.user
+                    WHERE ul.leaderboard = $1
+                    GROUP BY ul.user
+                    ORDER BY blocks DESC`,
+                    [leaderboard]
+            );
+
+            return rows;
+        },
+
         checkConnection: async () => {
             try {
                 const { rows } = await pool.query<{ conn_test: number }>('SELECT 1 as conn_test');

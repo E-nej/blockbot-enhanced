@@ -38,8 +38,14 @@ export const UsersLeaderboard = z.object({
     leaderboard: z.number().positive()
 });
 
+export const LeaderboardRow = z.object({
+    user: z.number().positive(),
+    blocks: z.number().positive()
+});
+
 export type User = z.infer<typeof User>;
 export type Level = z.infer<typeof Level>;
 export type Leaderboard = z.infer<typeof Leaderboard>;
 export type LevelsUsers = z.infer<typeof LevelsUsers>;
 export type UsersLeaderboard = z.infer<typeof UsersLeaderboard>;
+export type LeaderboardRow = z.infer<typeof LeaderboardRow>;
