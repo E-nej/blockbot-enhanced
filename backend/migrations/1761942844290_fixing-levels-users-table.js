@@ -15,6 +15,11 @@ export const up = (pgm) => {
                 type: 'text',
                 notNull: true,
                 default: '0'
+            },
+            stars: {
+                type: 'integer',
+                notNull: true,
+                default: 0
             }
         }
     );
@@ -27,4 +32,5 @@ export const up = (pgm) => {
  */
 export const down = (pgm) => {
     pgm.dropColumn('levels_users', 'blocks_used');
+    pgm.dropColumn('levels_users', 'stars');
 };

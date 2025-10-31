@@ -28,7 +28,8 @@ export const LevelsUsers = z.object({
     id: z.number().positive(),
     user: z.number().positive(),
     level: z.number().positive(),
-    blocks_used: z.string()
+    blocks_used: z.string(),
+    stars: z.number().positive()
 });
 
 export const UsersLeaderboard = z.object({

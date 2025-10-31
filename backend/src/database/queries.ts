@@ -1,6 +1,6 @@
 import { HttpError } from '../errors';
 import { getPool } from './pool';
-import { User } from './types'
+import { LevelsUsers, User } from './types'
 import bcrypt from 'bcrypt'
 
 export interface Queries {
@@ -8,6 +8,9 @@ export interface Queries {
   createUser(username: string, email: string, password: string): Promise<User>;
   getUserByUsername(username: string): Promise<User | null>;
   getUserById(id: number): Promise<User | null>;
+  getUserCompletedGameById(userId: number, gameId: number): Promise<LevelsUsers | null>;
+  createCompletedGame(userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean): Promise<LevelsUsers | null>;
+  updateCompletedGame(userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean): Promise<LevelsUsers | null>;
   /*getAllPeople(): Promise<Person[]>;
   addPerson(person: Person): Promise<Person>;*/
 }
@@ -75,6 +78,55 @@ export const makeQueries = (databaseUrl: string): Queries => {
             catch(error) {
                 throw error;
             }
+        },
+        
+        getUserCompletedGameById: async (userId: number, gameId: number) => {
+            try {
+                const { rows } = await pool.query<LevelsUsers>(
+                    `SELECT id 
+                     FROM "levels_users" 
+                     WHERE "user" = $1 
+                     AND "level" = $2`,
+                     [userId, gameId]
+                );
+                
+                return rows[0] || null;
+            } catch (error) {
+                throw error;
+            }
+        }, 
+
+        updateCompletedGame: async (userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean) => {
+            try {
+                const { rows } = await pool.query<LevelsUsers>(
+                    `UPDATE "levels_users"
+                     SET blocks_used = $1,
+                         stars = $2
+                     WHERE "user" = $3 AND "level" = $4
+                     RETURNING *`,
+                    [blocks_used, stars, userId, gameId]
+                );
+
+                return rows[0] || null
+            } catch(error) {
+                throw error;
+            }
+        },
+
+        createCompletedGame: async (userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean) => {
+            try {
+                const { rows } = await pool.query<LevelsUsers>(
+                    `INSERT INTO "levels_users" ("user", "level", blocks_used, stars)
+                     VALUES ($1, $2, $3, $4)
+                     RETURNING *`,
+                     [userId, gameId, blocks_used, stars]
+                );
+
+                return rows[0] || null
+            } catch(error) {
+                throw error;
+            }
+
         }
     };
 }
