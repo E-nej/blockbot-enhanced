@@ -27,7 +27,8 @@ export const Leaderboard = z.object({
 export const LevelsUsers = z.object({
     id: z.number().positive(),
     user: z.number().positive(),
-    level: z.number().positive()
+    level: z.number().positive(),
+    blocks_used: z.string()
 });
 
 export const UsersLeaderboard = z.object({

@@ -5,8 +5,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { getConfig } from '../config';
 import { AuthRequest } from '../middleware/auth';
-import { error } from 'node:console';
-import { email } from 'zod/v4';
 
 interface RegisterBody {
     username: string;
