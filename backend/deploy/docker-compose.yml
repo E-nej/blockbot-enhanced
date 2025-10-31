@@ -29,3 +29,5 @@ services:
       POSTGRES_USER: be
       POSTGRES_PASSWORD: passwd
 
+volumes:
+  pg_data:
