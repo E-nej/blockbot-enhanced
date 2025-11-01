@@ -8,7 +8,8 @@ export const makeLeaderboardRoutes = (ctx: AppContext): Router => {
   const controller = makeLeaderboardController(ctx);
 
   router.post('/', authenticate, controller.create);
-  router.get('/:id', authenticate, controller.getStatus);
+  router.get('/', authenticate, controller.getUsersLeaderboard);
+  router.get('/rows', authenticate, controller.getStatus);
   router.get('/join/:id', authenticate, controller.join);
    // router.get('/logout', controller.logout);
 

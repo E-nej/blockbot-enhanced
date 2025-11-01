@@ -9,8 +9,9 @@ export interface Queries {
   removeFromLeaderbaord(user: number): Promise<void>;
   getLeaderboardData(leaderboard: number): Promise<Array<LeaderboardRow>>
   getUserLeaderdboard(user: number): Promise<UsersLeaderboard | null>;
-  removeLeaderboard(creator: number): Promise<void>;
+  removeLeaderboard(id: number): Promise<void>;
   createLeaderbaord(name: string, creator: number): Promise<Leaderboard>;
+  getLeaderboardById(id: number): Promise<Leaderboard | null>;
   getLeaderboardByUser(creator: number): Promise<Leaderboard | null>;
   createUser(username: string, email: string, password: string): Promise<User>;
   getUserByUsername(username: string): Promise<User | null>;
@@ -53,9 +54,9 @@ export const makeQueries = (databaseUrl: string): Queries => {
 
         addToLeaderbaord: async (user: number, leaderboard: number) => {
             const { rowCount } = await pool.query<UsersLeaderboard>(
-                `INSERT INTO "users_leaderboard" (user, leaderboard)
+                `INSERT INTO "users_leaderboard" ("user", leaderboard)
                  VALUES ($1, $2)
-                 RETURNING id, user, leaderboard`,
+                 RETURNING id, "user", leaderboard`,
                  [user, leaderboard]
             );
 
@@ -66,7 +67,7 @@ export const makeQueries = (databaseUrl: string): Queries => {
 
         removeFromLeaderbaord: async (user: number) => {
             const { rowCount } = await pool.query(
-                `DELETE FROM "users_leaderboard" WHERE user = $1`,
+                `DELETE FROM "users_leaderboard" WHERE "user" = $1`,
                 [user]
             );
 
@@ -77,19 +78,19 @@ export const makeQueries = (databaseUrl: string): Queries => {
   
         getUserLeaderdboard: async (user: number) => {
             const { rows, rowCount } = await pool.query<UsersLeaderboard>(
-                `SELECT id, user, Leaderboard
+                `SELECT id, "user", Leaderboard
                  FROM "users_leaderboard"
-                 WHERE user = $1`,
+                 WHERE "user" = $1`,
                 [user]
             );
 
             return rows[0] || null;
         },
 
-        removeLeaderboard: async (creator: number) => {
+        removeLeaderboard: async (id: number) => {
             const { rowCount } = await pool.query(
-                `DELETE FROM "leaderboard" WHERE creator = $1`,
-                [creator]
+                `DELETE FROM "leaderboard" WHERE id = $1`,
+                [id]
             );
 
             if(rowCount === 0) {
@@ -97,13 +98,22 @@ export const makeQueries = (databaseUrl: string): Queries => {
             }
         },
 
-
+        getLeaderboardById: async (id: number) => {
+            const { rows } = await pool.query<Leaderboard>(
+                `SELECT id, name, creator, "createdAt"
+                 FROM "leaderboard"
+                 WHERE id = $1`,
+                [id] 
+            );
+            
+            return rows[0] || null;
+        },
 
         getLeaderboardByUser: async (creator: number) => {
             const { rows } = await pool.query<Leaderboard>(
                 `SELECT id, name, creator, "createdAt"
                  FROM "leaderboard"
-                 WHERE id = $1
+                 WHERE creator = $1
                  LIMIT 1`,
                 [creator] 
             );

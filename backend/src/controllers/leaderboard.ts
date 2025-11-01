@@ -10,6 +10,7 @@ interface CreateBody {
 }
 
 export interface LeaderboardController {
+    getUsersLeaderboard(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
     create(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
     join(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
     getStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
@@ -27,18 +28,24 @@ export const makeLeaderboardController = ({ queries }: AppContext): LeaderboardC
                     next(new HttpError(401, 'Unauthorized'));
                 }
 
-                let leaderbaord = queries.getLeaderboardByUser(req.userId!);
-                let inLeaderboard = queries.getUserLeaderdboard(req.userId!);
+                let leaderboard = await queries.getLeaderboardByUser(req.userId!);
+                let inLeaderboard = await queries.getUserLeaderdboard(req.userId!);
 
-                if(leaderbaord != null) {
-                    queries.removeLeaderboard(req.userId!);
-                }
+                console.log(leaderboard)
+                console.log(inLeaderboard)
 
                 if(inLeaderboard != null) {
-                    queries.removeFromLeaderbaord(req.userId!);
+                    console.log("Removing form leaderboard");
+                    await queries.removeFromLeaderbaord(req.userId!);
+                }
+                
+                if(leaderboard != null) {
+                    await queries.removeLeaderboard(leaderboard.id);
                 }
 
-                let newLeaderboard = queries.createLeaderbaord(name, req.userId!);
+                let newLeaderboard = await queries.createLeaderbaord(name, req.userId!);
+
+                await queries.addToLeaderbaord(req.userId!, newLeaderboard.id);
 
                 if(newLeaderboard == null) {
                     next(new HttpError(500, "Failed to create leaderboard"));
@@ -59,18 +66,35 @@ export const makeLeaderboardController = ({ queries }: AppContext): LeaderboardC
                     next(new HttpError(401, 'Unauthorized'));
                 }
 
-                let leaderbaord = queries.getLeaderboardByUser(req.userId!);
-                let inLeaderboard = queries.getUserLeaderdboard(req.userId!);
+                let userLeaderbaord = await queries.getLeaderboardByUser(req.userId!);
+                let leaderboard = await queries.getLeaderboardById(parseInt(id));
+                let inLeaderboard = await queries.getUserLeaderdboard(req.userId!);
 
-                if(leaderbaord != null) {
-                    queries.removeLeaderboard(req.userId!);
+                console.log(userLeaderbaord);
+                console.log(leaderboard);
+                console.log(inLeaderboard);
+                if(leaderboard == null) {
+                    res.status(404).json({
+                        message: "Leaderbaord does not exist"
+                    });
+                    console.log("bad bad bad")
+                    return;
                 }
 
+                if(inLeaderboard != null && inLeaderboard.leaderboard == parseInt(id)) {
+                    res.status(200).send();
+                    return;
+                }
+                
                 if(inLeaderboard != null) {
-                    queries.removeFromLeaderbaord(req.userId!);
+                    await queries.removeFromLeaderbaord(req.userId!);
                 }
 
-                queries.addToLeaderbaord(req.userId!, parseInt(id));
+                if(userLeaderbaord != null) {
+                    await queries.removeLeaderboard(userLeaderbaord.id);
+                }
+
+                await queries.addToLeaderbaord(req.userId!, parseInt(id));
 
                 res.status(200).send();
             } catch(error: any) {
@@ -80,17 +104,45 @@ export const makeLeaderboardController = ({ queries }: AppContext): LeaderboardC
 
         getStatus: async (req, res, next) => {
             try {
-                const { id } = req.params;
-                
                 if (!req.userId) {
                     next(new HttpError(401, 'Unauthorized'));
+                    return;
                 }
 
-                let data = queries.getLeaderboardData(parseInt(id));
+                let userLeaderboard = await queries.getUserLeaderdboard(req.userId!);
+
+                if(userLeaderboard == null) {
+                    next(new HttpError(404, 'Leaderboard doesn\'t exist'));
+                    return;
+                }
+
+                let data = queries.getLeaderboardData(userLeaderboard.id);
 
                 res.status(200).json(data);
             } catch(error: any) {
                 next(new HttpError(500, error.message));
+            }
+        },
+        
+        getUsersLeaderboard: async (req: AuthRequest, res: Response, next: NextFunction) => {
+            try {
+                if(!req.userId) {
+                    next(new HttpError(401, 'Unauthorized'));
+                    return;
+                }
+
+                let userLeaderboard = await queries.getUserLeaderdboard(req.userId!);
+
+                if(userLeaderboard == null) {
+                    next(new HttpError(404, 'Leaderboard doesn\'t exist'));
+                    return;
+                }
+
+                let data = await queries.getLeaderboardById(userLeaderboard.leaderboard);
+
+                res.status(200).json(data);
+            } catch(error: any) {
+                next(new HttpError(500, error.message))
             }
         }
     }
