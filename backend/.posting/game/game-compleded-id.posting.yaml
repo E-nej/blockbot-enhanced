@@ -12,5 +12,5 @@ body:
 headers:
 - name: content-type
   value: application/json
-- name: Authorization
-  value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoicGF0cmlrIiwiZW1haWwiOiJwYXRyaWtAcmlib2xpLm1lIiwiaWF0IjoxNzYxOTQ4NTc3LCJleHAiOjE3NjE5NTIxNzd9.NkygGIaD_t84ySqZ5pio9p-ClqizI63bv6JHsOzCZwM
+scripts:
+  on_request: auth.py

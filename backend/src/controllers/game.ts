@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express'
 import { AuthRequest } from '../middleware/auth'
 import { AppContext } from '../app';
 import { HttpError } from '../errors';
+import { b } from 'vitest/dist/chunks/suite.d.FvehnV49.js';
 
 interface CompleteGameBody {
     blocks_used: string;
@@ -11,6 +12,8 @@ interface CompleteGameBody {
 
 export interface GameController {
     completeGame(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
+    getFinishedGames(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
+    getFinishedGame(req: AuthRequest, res: Response, next: NextFunction): Promise<void>;
 }
 
 export const makeGameController = ({ queries }: AppContext): GameController => {
@@ -53,6 +56,43 @@ export const makeGameController = ({ queries }: AppContext): GameController => {
             } catch(error) {
                 next(error)
             }
-       }, 
+       },
+
+        getFinishedGames: async (req: AuthRequest, res: Response, next: NextFunction) => {
+            try {
+                if(!req.userId) {
+                    next(new HttpError(401, 'Unauthenticated'));
+                    return;
+                }
+
+                const games = await queries.getFinishedGames(req.userId);
+
+                res.status(200).json(games);
+            } catch(error: any) {
+                next(new HttpError(500, error.message))
+            }
+        },
+
+        getFinishedGame: async (req: AuthRequest, res: Response, next: NextFunction) => {
+            try {
+                const { id } = req.params;
+
+                if(!req.userId) {
+                    next(new HttpError(401, 'Unauthenticated'));
+                    return;
+                }
+
+                const game = await queries.getFinishedGame(req.userId, parseInt(id));
+                
+                if(game == null) {
+                    next(new HttpError(404, 'Game not found/played yet'));
+                    return;
+                }
+
+                res.status(200).json(game);
+            } catch(error: any) {
+                next(new HttpError(500, error.message));
+            }
+        }
     }
 }   
