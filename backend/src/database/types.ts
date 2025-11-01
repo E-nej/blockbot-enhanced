@@ -40,7 +40,7 @@ export const UsersLeaderboard = z.object({
 
 export const LeaderboardRow = z.object({
     user: z.number().positive(),
-    blocks: z.number().positive()
+    total_stars: z.number().positive()
 });
 
 export type User = z.infer<typeof User>;

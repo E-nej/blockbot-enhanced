@@ -29,17 +29,26 @@ export const makeQueries = (databaseUrl: string): Queries => {
     return {
         getLeaderboardData: async (leaderboard: number) => {
             const { rows } = await pool.query<LeaderboardRow>(`
-                    SELECT
-                        ul.user AS user,
-                        SUM(lu.blocks_used) AS blocks 
-                    FROM users_leaderboard ul
-                    JOIN levels_users lu ON lu.user = ul.user
-                    WHERE ul.leaderboard = $1
-                    GROUP BY ul.user
-                    ORDER BY blocks DESC`,
-                    [leaderboard]
+                WITH latest_entries AS (
+                    SELECT DISTINCT ON (lu.user, lu.level)
+                        lu.id,
+                        lu.user,
+                        lu.level,
+                        lu.stars
+                    FROM levels_users lu
+                    ORDER BY lu.user, lu.level, lu.id DESC
+                )
+                SELECT
+                    ul.user AS user_id,
+                    SUM(le.stars) AS total_stars
+                FROM users_leaderboard ul
+                LEFT JOIN latest_entries le ON le.user = ul.user
+                WHERE ul.leaderboard = $1
+                GROUP BY ul.user
+                ORDER BY total_stars DESC`,
+                [leaderboard]
             );
-
+            
             return rows;
         },
 

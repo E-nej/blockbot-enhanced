@@ -70,9 +70,6 @@ export const makeLeaderboardController = ({ queries }: AppContext): LeaderboardC
                 let leaderboard = await queries.getLeaderboardById(parseInt(id));
                 let inLeaderboard = await queries.getUserLeaderdboard(req.userId!);
 
-                console.log(userLeaderbaord);
-                console.log(leaderboard);
-                console.log(inLeaderboard);
                 if(leaderboard == null) {
                     res.status(404).json({
                         message: "Leaderbaord does not exist"
@@ -116,7 +113,7 @@ export const makeLeaderboardController = ({ queries }: AppContext): LeaderboardC
                     return;
                 }
 
-                let data = queries.getLeaderboardData(userLeaderboard.id);
+                let data = await queries.getLeaderboardData(userLeaderboard.leaderboard);
 
                 res.status(200).json(data);
             } catch(error: any) {
