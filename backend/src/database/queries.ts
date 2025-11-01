@@ -1,11 +1,13 @@
 import { HttpError } from '../errors';
 import { getPool } from './pool';
-import { Leaderboard, LevelsUsers, LeaderboardRow, User, UsersLeaderboard } from './types'
+import { Leaderboard, LevelsUsers, LeaderboardRow, User, UsersLeaderboard, LevelOverview } from './types'
 import bcrypt from 'bcrypt'
 
 export interface Queries {
   checkConnection(): Promise<boolean>;
   addToLeaderbaord(user: number, leaderboard: number): Promise<void>;
+  getFinishedGames(user: number): Promise<Array<LevelOverview>>
+  getFinishedGame(user: number, level: number): Promise<LevelsUsers | null>
   removeFromLeaderbaord(user: number): Promise<void>;
   getLeaderboardData(leaderboard: number): Promise<Array<LeaderboardRow>>
   getUserLeaderdboard(user: number): Promise<UsersLeaderboard | null>;
@@ -59,6 +61,33 @@ export const makeQueries = (databaseUrl: string): Queries => {
             } catch {
                 return false;
             }
+        },
+
+        getFinishedGames: async (user: number) => {
+            const { rows } = await pool.query<LevelOverview>(`
+                SELECT DISTINCT ON ("user", level) 
+                    level,
+                    stars
+                FROM levels_users
+                WHERE "user" = $1 AND stars != 0 
+                ORDER BY "user", level, stars DESC`,
+                [user]
+            )
+
+            return rows;
+        },
+
+        getFinishedGame: async (user: number, level: number) => {
+            const { rows } = await pool.query(
+                `SELECT *
+                FROM levels_users
+                WHERE "user" = $1 AND level = $2
+                ORDER BY stars DESC
+                LIMIT 1`,
+                [user, level]
+            )
+
+            return rows[0] || null;
         },
 
         addToLeaderbaord: async (user: number, leaderboard: number) => {
