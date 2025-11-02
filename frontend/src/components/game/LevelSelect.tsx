@@ -1,0 +1,150 @@
+import { Button } from 'flowbite-react';
+import type { Level, Action } from '../../types/game';
+import { useState, useMemo } from 'react';
+
+interface LevelSelectProps {
+  levels: Level[];
+  onLevelSelect: (levelIndex: number) => void;
+  loading?: boolean;
+  error?: string | null;
+}
+
+const ACTION_ICONS: Record<Action, string> = {
+  forward: '/game/actions/forward.svg',
+  turnLeft: '/game/actions/turn-left.svg',
+  turnRight: '/game/actions/turn-right.svg',
+  jump: '/game/actions/jump.svg',
+  use: '/game/actions/use.svg',
+  loop: '/game/actions/loop.svg',
+};
+
+const ACTION_NAMES: Record<Action, string> = {
+  forward: 'Forward',
+  turnLeft: 'Turn Left',
+  turnRight: 'Turn Right',
+  jump: 'Jump',
+  use: 'Use',
+  loop: 'Loop',
+};
+
+export function LevelSelect({
+  levels,
+  onLevelSelect,
+  loading,
+  error,
+}: LevelSelectProps) {
+  const defaultLevel = useMemo(
+    () => (levels.length > 0 ? levels[0] : null),
+    [levels],
+  );
+  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
+
+  const currentLevel = selectedLevel || defaultLevel;
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h2 className="mb-8 text-center text-3xl font-bold">
+          Stopnje se nalagajo...
+        </h2>
+        <div className="flex justify-center">
+          <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h2 className="mb-8 text-center text-3xl font-bold text-red-600">
+          Napaka pri nalaganju stopenj
+        </h2>
+        <p className="text-center text-gray-600">{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-[calc(100vh-120px)] items-center justify-center p-8">
+      <div
+        className="relative mx-auto overflow-hidden rounded-[8rem] bg-[#0F2F2C]"
+        style={{
+          aspectRatio: '344/216',
+          width: 'min(calc(100vw - 240px), calc((100vh - 240px) * 344/216))',
+          height: 'min(calc(100vw - 240px) * 216/344, calc(100vh - 240px))',
+          boxShadow: `
+            0 0 0 8px #C2CED9,
+            0 0 0 48px #EBEEF3
+          `,
+        }}
+      >
+        {/* Screen Content */}
+        <div className="flex h-full w-full flex-col items-center justify-between p-16">
+          <div className="flex h-full w-full items-center justify-between">
+            <div className="w-[50%] overflow-y-auto pr-3">
+              {currentLevel ? (
+                <div className="text-white">
+                  <div className="mb-3">
+                    <span className="bg-primary-700 inline-block rounded-full px-2 py-1 text-xs font-bold text-white">
+                      Stopnja {currentLevel.index}
+                    </span>
+                    <h3 className="mt-1 text-lg font-semibold">
+                      {currentLevel.name}
+                    </h3>
+                    <p className="mt-1 text-gray-300">
+                      {currentLevel.description}
+                    </p>
+                  </div>
+
+                  <div className="mb-3">
+                    <h4 className="mb-2 text-sm font-medium text-gray-200">
+                      Ukazi:
+                    </h4>
+                    <div className="flex flex-wrap gap-1">
+                      {currentLevel.actions.map((action) => (
+                        <img
+                          src={ACTION_ICONS[action]}
+                          alt={ACTION_NAMES[action]}
+                          key={action}
+                          className="h-12 w-12"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-lg text-white">
+                  Izberi stopnjo na desni
+                </div>
+              )}
+            </div>
+
+            <div className="flex w-[50%] flex-col items-center justify-end">
+              <div className="grid grid-cols-5 gap-0">
+                {levels.slice(0, 12).map((level) => (
+                  <Button
+                    key={level.index}
+                    onClick={() => setSelectedLevel(level)}
+                    outline={currentLevel?.index !== level.index}
+                    className="m-2 h-12 w-12 border-2 text-lg font-bold text-white"
+                  >
+                    {level.index}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {currentLevel && (
+            <Button
+              onClick={() => onLevelSelect(currentLevel.index)}
+              className="w-full max-w-32 font-bold"
+            >
+              Začni
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

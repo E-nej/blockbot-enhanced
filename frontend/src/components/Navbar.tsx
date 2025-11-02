@@ -10,7 +10,7 @@ import {
   DropdownItem,
 } from 'flowbite-react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../useAuth';
+import { useAuth } from '../hooks/useAuth';
 
 export default function NavbarComponent() {
   const location = useLocation();

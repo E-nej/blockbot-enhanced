@@ -1,7 +1,20 @@
+import { LevelSelect } from '../components/game/LevelSelect';
+import { useLevels } from '../hooks/useLevels';
+
 export default function Game() {
+  const { levels, loading, error } = useLevels();
+
+  const handleLevelSelect = (levelIndex: number) => {
+    console.log(`Selected level ${levelIndex}`);
+    // TODO: Start the selected level
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-center text-4xl font-bold">Game</h1>
-    </div>
+    <LevelSelect
+      levels={levels}
+      onLevelSelect={handleLevelSelect}
+      loading={loading}
+      error={error}
+    />
   );
 }
