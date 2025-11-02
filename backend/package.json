@@ -11,6 +11,8 @@
     "migrate": "node-pg-migrate"
   },
   "dependencies": {
+    "@types/cors": "^2.8.19",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
