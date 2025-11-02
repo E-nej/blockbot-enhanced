@@ -5,6 +5,8 @@ import { Middleware } from "./middleware";
 import { makeHealthRoutes } from "./routes/health";
 import { makeUserRoutes } from "./routes/user";
 import { makeGameRoutes } from "./routes/game";
+import { makeLeaderboardRoutes } from './routes/leaderboard';
+
 import { getConfig } from "./config";
 
 export interface AppContext {
@@ -29,9 +31,10 @@ export function makeApp(ctx: AppContext): Express {
   app.use(express.json());
   app.use(ctx.middleware.logger);
 
-  app.use("/health", makeHealthRoutes(ctx));
-  app.use("/users", makeUserRoutes(ctx));
-  app.use("/game", makeGameRoutes(ctx));
+  app.use('/health', makeHealthRoutes(ctx));
+  app.use('/users', makeUserRoutes(ctx));
+  app.use('/game', makeGameRoutes(ctx));
+  app.use('/leaderboard', makeLeaderboardRoutes(ctx));
 
   app.use(ctx.middleware.routeNotFound);
   app.use(ctx.middleware.errorHandler);

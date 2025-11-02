@@ -32,14 +32,26 @@ export const LevelsUsers = z.object({
     stars: z.number().positive()
 });
 
+export const LevelOverview = z.object({
+    user: z.number().positive(),
+    stars: z.number().positive(),
+});
+
 export const UsersLeaderboard = z.object({
     id: z.number().positive(),
     user: z.number().positive(),
     leaderboard: z.number().positive()
 });
 
+export const LeaderboardRow = z.object({
+    user: z.number().positive(),
+    total_stars: z.number().positive()
+});
+
 export type User = z.infer<typeof User>;
 export type Level = z.infer<typeof Level>;
 export type Leaderboard = z.infer<typeof Leaderboard>;
 export type LevelsUsers = z.infer<typeof LevelsUsers>;
+export type LevelOverview = z.infer<typeof LevelOverview>;
 export type UsersLeaderboard = z.infer<typeof UsersLeaderboard>;
+export type LeaderboardRow = z.infer<typeof LeaderboardRow>;

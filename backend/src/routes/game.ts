@@ -8,6 +8,8 @@ export const makeGameRoutes = (ctx: AppContext): Router => {
   const controller = makeGameController(ctx);
 
   router.post('/completed/:game_id', authenticate, controller.completeGame);
+  router.get('/', authenticate, controller.getFinishedGames);
+  router.get('/:id', authenticate, controller.getFinishedGame);
 
   return router;
 };
