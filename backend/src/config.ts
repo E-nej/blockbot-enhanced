@@ -6,6 +6,7 @@ export const Config = z.object({
   databaseUrl: z.string(),
   jwt_secret: z.string(),
   jwt_ttl: z.string(),
+  frontend_url: z.string(),
 });
 export type Config = z.infer<typeof Config>;
 
@@ -20,5 +21,6 @@ export const getConfig = (prefix?: string): Config => {
     databaseUrl: readFromEnv('DATABASE_URL', prefix),
     jwt_secret: readFromEnv('JWT_SECRET', prefix),
     jwt_ttl: readFromEnv('JWT_TTL', prefix),
+    frontend_url: readFromEnv('FRONTEND_URL', prefix),
   });
 };
