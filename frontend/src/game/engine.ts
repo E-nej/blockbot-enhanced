@@ -58,6 +58,7 @@ export function initializeGameState(level: Level): GameState {
     objectsMatrix: level.objectsMatrix.map((row) => [...row]),
     isComplete: false,
     isFailed: false,
+    isJumping: false,
     timeElapsed: 0,
     moveLog: ['Game started'],
   };
@@ -67,7 +68,6 @@ function isValidPosition(
   pos: Position,
   levelMatrix: CellType[][],
   objectsMatrix: (ObjectType | null)[][],
-  state: GameState,
   isJumping: boolean = false,
 ): boolean {
   if (
@@ -108,16 +108,11 @@ function moveForward(
   };
 
   if (
-    !isValidPosition(
-      newPos,
-      level.levelMatrix,
-      state.objectsMatrix,
-      state,
-      isJumping,
-    )
+    !isValidPosition(newPos, level.levelMatrix, state.objectsMatrix, isJumping)
   ) {
     return {
       ...state,
+      isJumping: false,
       moveLog: [
         ...state.moveLog,
         `Forward blocked - stayed at (${state.playerPosition.x}, ${state.playerPosition.y})`,
@@ -125,53 +120,66 @@ function moveForward(
     };
   }
 
-  const newState: GameState = {
+  const obj = state.objectsMatrix[newPos.y][newPos.x];
+  const pickedUpKey = obj === 'key';
+  const reachedFinish = obj === 'finish';
+
+  const objectsMatrix = pickedUpKey
+    ? state.objectsMatrix.map((row) => [...row])
+    : state.objectsMatrix;
+
+  if (pickedUpKey) {
+    objectsMatrix[newPos.y][newPos.x] = null;
+  }
+
+  const moveLog = [
+    ...state.moveLog,
+    `Moved forward to (${newPos.x}, ${newPos.y})`,
+  ];
+  if (pickedUpKey) moveLog.push('Picked up key');
+  if (reachedFinish) moveLog.push('Reached finish! Level complete!');
+
+  return {
     ...state,
     playerPosition: newPos,
-    moveLog: [...state.moveLog, `Moved forward to (${newPos.x}, ${newPos.y})`],
+    isJumping: false,
+    objectsMatrix,
+    inventory: pickedUpKey ? [...state.inventory, 'key'] : state.inventory,
+    isComplete: reachedFinish,
+    moveLog,
   };
-
-  const obj = state.objectsMatrix[newPos.y][newPos.x];
-
-  if (obj === 'key') {
-    newState.inventory = [...newState.inventory, 'key'];
-    newState.objectsMatrix = newState.objectsMatrix.map((row) => [...row]);
-    newState.objectsMatrix[newPos.y][newPos.x] = null;
-    newState.moveLog = [...newState.moveLog, 'Picked up key'];
-  }
-
-  if (obj === 'finish') {
-    newState.isComplete = true;
-    newState.moveLog = [...newState.moveLog, 'Reached finish! Level complete!'];
-  }
-
-  return newState;
 }
 
 function turnLeft(state: GameState): GameState {
-  const newDirection = TURN_LEFT[state.playerDirection];
   return {
     ...state,
-    playerDirection: newDirection,
-    moveLog: [...state.moveLog, `Turned left, now facing ${newDirection}`],
+    playerDirection: TURN_LEFT[state.playerDirection],
+    moveLog: [
+      ...state.moveLog,
+      `Turned left, now facing ${TURN_LEFT[state.playerDirection]}`,
+    ],
   };
 }
 
 function turnRight(state: GameState): GameState {
-  const newDirection = TURN_RIGHT[state.playerDirection];
   return {
     ...state,
-    playerDirection: newDirection,
-    moveLog: [...state.moveLog, `Turned right, now facing ${newDirection}`],
+    playerDirection: TURN_RIGHT[state.playerDirection],
+    moveLog: [
+      ...state.moveLog,
+      `Turned right, now facing ${TURN_RIGHT[state.playerDirection]}`,
+    ],
   };
 }
 
 function jump(state: GameState, level: Level): GameState {
-  const loggedState = {
+  const stateWithLog = {
     ...state,
     moveLog: [...state.moveLog, 'Jumping...'],
   };
-  return moveForward(loggedState, level, true);
+  const result = moveForward(stateWithLog, level, true);
+  result.isJumping = true;
+  return result;
 }
 
 function performUseAction(state: GameState): GameState {
@@ -197,14 +205,15 @@ function performUseAction(state: GameState): GameState {
 
   if (obj === 'lock') {
     if (state.inventory.includes('key')) {
-      const newState = {
+      const objectsMatrix = state.objectsMatrix.map((row) => [...row]);
+      objectsMatrix[targetPos.y][targetPos.x] = null;
+
+      return {
         ...state,
-        objectsMatrix: state.objectsMatrix.map((row) => [...row]),
+        objectsMatrix,
         inventory: state.inventory.filter((item) => item !== 'key'),
         moveLog: [...state.moveLog, 'Used key to unlock lock'],
       };
-      newState.objectsMatrix[targetPos.y][targetPos.x] = null;
-      return newState;
     } else {
       return {
         ...state,
@@ -244,25 +253,33 @@ function executeAction(
   }
 }
 
-export function executeActions(
+export async function executeActions(
   level: Level,
   actions: GameAction[],
+  onStateUpdate?: (state: GameState) => void,
   startTime: number = Date.now(),
-): GameState {
+): Promise<GameState> {
   let state = initializeGameState(level);
 
+  if (onStateUpdate) onStateUpdate(state);
+
   for (const action of actions) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     if (typeof action === 'object' && action.type === 'loop') {
       const loopAction = action as LoopAction;
       for (let i = 0; i < loopAction.iterations; i++) {
         for (const loopedAction of loopAction.actions) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
           state = executeAction(state, loopedAction as Action, level);
+          if (onStateUpdate) onStateUpdate(state);
           if (state.isComplete || state.isFailed) break;
         }
         if (state.isComplete || state.isFailed) break;
       }
     } else {
       state = executeAction(state, action as Action, level);
+      if (onStateUpdate) onStateUpdate(state);
     }
 
     if (state.isComplete || state.isFailed) {

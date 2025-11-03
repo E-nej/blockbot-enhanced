@@ -24,6 +24,7 @@ export interface GameState {
   objectsMatrix: (ObjectType | null)[][];
   isComplete: boolean;
   isFailed: boolean;
+  isJumping: boolean;
   timeElapsed: number;
   moveLog: string[];
 }
