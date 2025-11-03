@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Button } from 'flowbite-react';
 import { executeActions } from '../../game/engine';
+import { ActionBuilder } from './ActionBuilder';
 import type { Level, GameAction, GameState, Direction } from '../../types/game';
 
 interface GamePlayProps {
@@ -216,6 +217,12 @@ export function GamePlay({ level, onBack }: GamePlayProps) {
         <div className="rounded-lg bg-white p-6 shadow-lg">
           <h3 className="mb-4 text-xl font-semibold">Actions</h3>
 
+          <ActionBuilder
+            availableActions={level.actions}
+            actions={actions}
+            onActionsChange={setActions}
+          />
+
           <div className="mb-4 space-y-2">
             <Button
               onClick={() => setActions(testActions)}
@@ -231,10 +238,6 @@ export function GamePlay({ level, onBack }: GamePlayProps) {
             >
               Load Test Actions (With Loop)
             </Button>
-          </div>
-
-          <div className="mb-4 rounded bg-gray-100 p-4">
-            <pre className="text-sm">{JSON.stringify(actions, null, 2)}</pre>
           </div>
 
           <div className="mb-4 flex gap-2">
