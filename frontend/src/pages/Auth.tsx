@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { Button, Card, Label, TextInput, Alert } from 'flowbite-react';
-import { useAuth } from '../useAuth';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Auth() {
   const [searchParams, setSearchParams] = useSearchParams();
