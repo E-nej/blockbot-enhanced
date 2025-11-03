@@ -1,34 +1,26 @@
-import { useState } from 'react';
-import { LevelSelect } from '../components/game/LevelSelect';
-import { GamePlay } from '../components/game/GamePlay';
-import { useLevels } from '../hooks/useLevels';
-import type { Level } from '../types/game';
+import { Button } from 'flowbite-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Game() {
-  const { levels, loading, error } = useLevels();
-  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
-
-  const handleLevelSelect = (levelIndex: number) => {
-    const level = levels.find((l) => l.index === levelIndex);
-    if (level) {
-      setSelectedLevel(level);
-    }
-  };
-
-  const handleBack = () => {
-    setSelectedLevel(null);
-  };
-
-  if (selectedLevel) {
-    return <GamePlay level={selectedLevel} onBack={handleBack} />;
-  }
+  const navigate = useNavigate();
 
   return (
-    <LevelSelect
-      levels={levels}
-      onLevelSelect={handleLevelSelect}
-      loading={loading}
-      error={error}
-    />
+    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center p-8">
+      <div className="flex flex-col gap-6">
+        <h1 className="text-center text-4xl font-bold text-white">BlockBot</h1>
+        <div className="flex flex-col gap-4">
+          <Button
+            size="xl"
+            className="bg-primary-600 hover:bg-primary-700 w-64 font-bold"
+            onClick={() => navigate('/game/levels')}
+          >
+            Play Game
+          </Button>
+          <Button size="xl" color="gray" className="w-64 font-bold" disabled>
+            Create Session
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

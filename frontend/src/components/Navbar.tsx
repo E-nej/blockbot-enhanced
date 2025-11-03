@@ -17,7 +17,7 @@ export default function NavbarComponent() {
   const { user, logout, isLoading } = useAuth();
 
   return (
-    <Navbar fluid rounded className="mb-0">
+    <Navbar fluid rounded className="z-50 mb-0">
       <Link to="/">
         <NavbarBrand>
           <img

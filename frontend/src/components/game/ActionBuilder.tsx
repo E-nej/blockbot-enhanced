@@ -462,11 +462,19 @@ export function ActionBuilder({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="space-y-4">
-        <div>
-          <h4 className="mb-2 text-sm font-semibold text-gray-700">
-            Available Actions
-          </h4>
+      <div className="border-primary-700 flex h-full flex-col gap-4 rounded-lg border-2 p-4">
+        <div className="flex-1 overflow-hidden">
+          <ActionsDropZone
+            actions={actions}
+            onRemove={handleRemoveAction}
+            onNestedRemove={handleRemoveNestedAction}
+            onIterationsChange={handleIterationsChange}
+          />
+        </div>
+
+        <div className="border-primary-700 border-t-2"></div>
+
+        <div className="flex-shrink-0">
           <div className="flex flex-wrap gap-2">
             {availableActions.map((action) => (
               <DraggableAction
@@ -477,13 +485,6 @@ export function ActionBuilder({
             ))}
           </div>
         </div>
-
-        <ActionsDropZone
-          actions={actions}
-          onRemove={handleRemoveAction}
-          onNestedRemove={handleRemoveNestedAction}
-          onIterationsChange={handleIterationsChange}
-        />
       </div>
 
       <DragOverlay>
@@ -509,21 +510,18 @@ function ActionsDropZone({
   const { setNodeRef } = useDroppable({ id: 'actions-dropzone' });
 
   return (
-    <div>
-      <h4 className="mb-2 text-sm font-semibold text-gray-700">
-        Your Action Sequence ({actions.length})
-      </h4>
+    <div className="flex h-full flex-col">
       <SortableContext
         items={actions.map((_, index) => `action-${index}`)}
         strategy={rectSortingStrategy}
       >
         <div
           ref={setNodeRef}
-          className="flex min-h-[100px] flex-wrap gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-4"
+          className="flex flex-1 flex-wrap content-center items-center justify-center gap-2 overflow-y-auto p-4"
         >
           {actions.length === 0 ? (
-            <p className="w-full text-center text-sm text-gray-400">
-              Drag actions here to build your sequence
+            <p className="text-xl font-semibold text-white">
+              Povleci ukaze sem
             </p>
           ) : (
             actions.map((action, index) => (

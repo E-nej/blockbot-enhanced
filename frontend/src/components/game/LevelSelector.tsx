@@ -27,7 +27,7 @@ const ACTION_NAMES: Record<Action, string> = {
   loop: 'Loop',
 };
 
-export function LevelSelect({
+export function LevelSelector({
   levels,
   onLevelSelect,
   loading,
