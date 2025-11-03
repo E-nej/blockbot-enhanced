@@ -253,7 +253,7 @@
     {
         "index": 4,
         "name": "Key to Success",
-        "description": "Find the key and use it to unlock the fence blocking your path.",
+        "description": "Find the key and use it to unlock the lock blocking your path.",
         "actions": [
             "forward",
             "turnLeft",
@@ -315,7 +315,7 @@
                 null,
                 "start",
                 null,
-                "lockedFence",
+                "lock",
                 "finish",
                 null
             ],
@@ -559,7 +559,7 @@
                 null,
                 "obstacle",
                 null,
-                "lockedFence",
+                "lock",
                 null,
                 null,
                 null
@@ -702,7 +702,7 @@
                 null,
                 "obstacle",
                 null,
-                "lockedFence",
+                "lock",
                 null,
                 null,
                 null
@@ -845,7 +845,7 @@
                 null,
                 "obstacle",
                 null,
-                "lockedFence",
+                "lock",
                 null,
                 null,
                 null
@@ -988,7 +988,7 @@
                 null,
                 "obstacle",
                 null,
-                "lockedFence",
+                "lock",
                 null,
                 null,
                 null
@@ -1131,7 +1131,7 @@
                 null,
                 "obstacle",
                 null,
-                "lockedFence",
+                "lock",
                 null,
                 null,
                 null
