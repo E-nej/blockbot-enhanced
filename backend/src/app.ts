@@ -8,6 +8,7 @@ import { makeGameRoutes } from "./routes/game";
 import { makeLeaderboardRoutes } from './routes/leaderboard';
 
 import { getConfig } from "./config";
+import { makeLevelRoutes } from "./routes/level";
 
 export interface AppContext {
   queries: Queries;
@@ -35,6 +36,7 @@ export function makeApp(ctx: AppContext): Express {
   app.use('/users', makeUserRoutes(ctx));
   app.use('/game', makeGameRoutes(ctx));
   app.use('/leaderboard', makeLeaderboardRoutes(ctx));
+  app.use('/levels/', makeLevelRoutes(ctx));
 
   app.use(ctx.middleware.routeNotFound);
   app.use(ctx.middleware.errorHandler);

@@ -14,6 +14,9 @@ export const Level = z.object({
     description: z.string(),
     level: z.string(),
     pos: z.number().positive().nullable(),
+    level_matrix: z.string().array(),
+    object_matrix: z.string().array(),
+    actions: z.string().array(),
     createdAt: z.date()
 });
 

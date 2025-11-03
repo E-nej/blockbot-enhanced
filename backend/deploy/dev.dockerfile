@@ -7,4 +7,6 @@ COPY package.json tsconfig.json eslint.config.mjs vitest.config.mts .env /usr/sr
 
 RUN npm i
 
+EXPOSE 5050
+
 ENTRYPOINT ["/bin/sh", "-c", "npm run dev"]

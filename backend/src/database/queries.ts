@@ -1,6 +1,6 @@
 import { HttpError } from '../errors';
 import { getPool } from './pool';
-import { Leaderboard, LevelsUsers, LeaderboardRow, User, UsersLeaderboard, LevelOverview } from './types'
+import { Leaderboard, LevelsUsers, LeaderboardRow, User, UsersLeaderboard, LevelOverview, Level } from './types'
 import bcrypt from 'bcrypt'
 
 export interface Queries {
@@ -21,6 +21,9 @@ export interface Queries {
   getUserCompletedGameById(userId: number, gameId: number): Promise<LevelsUsers | null>;
   createCompletedGame(userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean): Promise<LevelsUsers | null>;
   updateCompletedGame(userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean): Promise<LevelsUsers | null>;
+  getLevels(): Promise<Level[] | null>;
+  getLevel(levelId: number): Promise<Level | null>;
+  createLevel(name: string, description: string, level: string, pos: number, level_matrix: string[][], object_matrix: string[][], actions: string[]): Promise<Level>;
   /*getAllPeople(): Promise<Person[]>;
   addPerson(person: Person): Promise<Person>;*/
 }
@@ -272,6 +275,50 @@ export const makeQueries = (databaseUrl: string): Queries => {
                 throw error;
             }
 
+        },
+
+        getLevels: async () => {
+            try {
+                const { rows } = await pool.query<Level>(
+                    'SELECT * FROM level'
+                );
+
+                return rows;
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        getLevel: async (levelId: number) => {
+            try {
+                const { rows } = await pool.query<Level>(
+                    `SELECT * 
+                     FROM level
+                     WHERE id = $1`,
+                    [levelId]
+                );
+
+                return rows[0] || null;
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        createLevel: async(name: string, description: string, level: string, pos: number, level_matrix: string[][], object_matrix: string[][], actions: string[]) => {
+            try {
+                const { rows, rowCount } = await pool.query<Level>(
+                    `INSERT INTO level (name, description, level, pos, level_matrix, object_matrix, actions)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7)
+                     RETURNING id, name, description`,
+                     [name, description, level, pos, level_matrix, object_matrix, actions]
+                );
+
+                if (rowCount !== 1) throw new HttpError(500, 'Internal server error');
+
+                return rows[0];
+            } catch(error) {
+                throw error;
+            }
         }
     };
 }
