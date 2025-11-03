@@ -17,7 +17,7 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { Action, GameAction } from '../../types/game';
+import type { Action, GameAction, LoopAction } from '../../types/game';
 
 interface ActionBuilderProps {
   availableActions: Action[];
@@ -51,9 +51,7 @@ const actionLabels: Record<Action, string> = {
 function ActionBlock({ action, isDragging }: ActionBlockProps) {
   return (
     <div
-      className={`relative flex items-center justify-center ${
-        isDragging ? 'opacity-50' : ''
-      }`}
+      className={`relative flex items-center justify-center ${isDragging ? 'opacity-50' : ''}`}
     >
       <img
         src={actionAssets[action]}
@@ -64,13 +62,153 @@ function ActionBlock({ action, isDragging }: ActionBlockProps) {
   );
 }
 
-interface SortableActionProps {
-  action: GameAction;
+interface LoopBlockProps {
+  loopAction: LoopAction;
+  isDragging: boolean;
+  loopId: string;
+  onNestedRemove: (nestedIndex: number) => void;
+  onIterationsChange: (newIterations: number) => void;
+}
+
+function LoopBlock({
+  loopAction,
+  isDragging,
+  loopId,
+  onNestedRemove,
+  onIterationsChange,
+}: LoopBlockProps) {
+  const { setNodeRef: setDropRef } = useDroppable({ id: `${loopId}-dropzone` });
+
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onIterationsChange(loopAction.iterations + 1);
+  };
+
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (loopAction.iterations > 1) {
+      onIterationsChange(loopAction.iterations - 1);
+    }
+  };
+
+  return (
+    <div
+      className={`flex h-16 items-center gap-2 rounded-lg bg-[#edf0f3] p-2 ${isDragging ? 'opacity-50' : ''}`}
+    >
+      <div className="flex h-full flex-shrink-0 items-center justify-center">
+        <img src={actionAssets.loop} alt="Loop" className="h-12 w-12" />
+      </div>
+
+      <div className="flex h-full flex-shrink-0 flex-col items-center justify-center gap-0.5 px-2">
+        <button
+          onClick={handleIncrement}
+          className="flex h-4 w-4 items-center justify-center text-gray-600 hover:text-gray-900"
+          type="button"
+        >
+          ▲
+        </button>
+        <span className="text-sm font-semibold">{loopAction.iterations}x</span>
+        <button
+          onClick={handleDecrement}
+          className="flex h-4 w-4 items-center justify-center text-gray-600 hover:text-gray-900"
+          type="button"
+        >
+          ▼
+        </button>
+      </div>
+
+      <SortableContext
+        items={loopAction.actions.map(
+          (_, index) => `${loopId}-nested-${index}`,
+        )}
+        strategy={rectSortingStrategy}
+      >
+        <div
+          ref={setDropRef}
+          className="flex h-full flex-1 flex-wrap items-center gap-2 px-2"
+        >
+          {loopAction.actions.length === 0 ? (
+            <span className="text-sm text-gray-400">Vstavi akcijo</span>
+          ) : (
+            loopAction.actions.map((nestedAction, index) =>
+              typeof nestedAction === 'string' ? (
+                <NestedAction
+                  key={`${loopId}-nested-${index}`}
+                  id={`${loopId}-nested-${index}`}
+                  action={nestedAction}
+                  onRemove={() => onNestedRemove(index)}
+                />
+              ) : null,
+            )
+          )}
+        </div>
+      </SortableContext>
+    </div>
+  );
+}
+
+interface NestedActionProps {
+  action: Action;
   id: string;
   onRemove: () => void;
 }
 
-function SortableAction({ action, id, onRemove }: SortableActionProps) {
+function NestedAction({ action, id, onRemove }: NestedActionProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, transition: null });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      {...attributes}
+      {...listeners}
+      className="group relative"
+    >
+      <div
+        className={`relative flex items-center justify-center ${isDragging ? 'opacity-50' : ''}`}
+      >
+        <img
+          src={actionAssets[action]}
+          alt={actionLabels[action]}
+          className="h-12 w-12"
+        />
+      </div>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+        className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+        type="button"
+      >
+        ✕
+      </button>
+    </div>
+  );
+}
+
+interface SortableActionProps {
+  action: GameAction;
+  id: string;
+  onRemove: () => void;
+  onNestedRemove?: (nestedIndex: number) => void;
+  onIterationsChange?: (newIterations: number) => void;
+}
+
+function SortableAction({
+  action,
+  id,
+  onRemove,
+  onNestedRemove,
+  onIterationsChange,
+}: SortableActionProps) {
   const {
     attributes,
     listeners,
@@ -85,8 +223,7 @@ function SortableAction({ action, id, onRemove }: SortableActionProps) {
     transition,
   };
 
-  // Filter out 'loop' since we're not handling it yet
-  if (typeof action === 'object') return null;
+  const isLoop = typeof action === 'object' && action.type === 'loop';
 
   return (
     <div
@@ -96,13 +233,23 @@ function SortableAction({ action, id, onRemove }: SortableActionProps) {
       {...listeners}
       className="group relative"
     >
-      <ActionBlock action={action as Action} isDragging={isDragging} />
+      {isLoop ? (
+        <LoopBlock
+          loopAction={action}
+          isDragging={isDragging}
+          loopId={id}
+          onNestedRemove={onNestedRemove || (() => {})}
+          onIterationsChange={onIterationsChange || (() => {})}
+        />
+      ) : (
+        <ActionBlock action={action as Action} isDragging={isDragging} />
+      )}
       <button
         onClick={(e) => {
           e.stopPropagation();
           onRemove();
         }}
-        className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+        className={`absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 ${isLoop ? 'z-10' : ''}`}
         type="button"
       >
         ✕
@@ -120,14 +267,17 @@ function DraggableAction({ action, id }: DraggableActionProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id });
 
-  const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
-  };
-
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: transform
+          ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+          : undefined,
+      }}
+      {...attributes}
+      {...listeners}
+    >
       <ActionBlock action={action} isDragging={isDragging} />
     </div>
   );
@@ -140,12 +290,8 @@ export function ActionBuilder({
 }: ActionBuilderProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
-
-  const filteredActions = availableActions.filter((a) => a !== 'loop');
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -154,36 +300,115 @@ export function ActionBuilder({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
-
     if (!over) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
     const isFromPalette = activeId.startsWith('palette-');
-    const isFromActions = activeId.startsWith('action-');
+    const isFromActions =
+      activeId.startsWith('action-') && !activeId.includes('-nested-');
+    const isFromNested = activeId.includes('-nested-');
     const isOverDropzone = overId === 'actions-dropzone';
-    const isOverAction = overId.startsWith('action-');
+    const isOverAction =
+      overId.startsWith('action-') && !overId.includes('-nested-');
+    const isOverLoopDropzone =
+      overId.endsWith('-dropzone') && overId !== 'actions-dropzone';
+    const isOverNested = overId.includes('-nested-');
 
-    // Add new action from palette
-    if (isFromPalette && (isOverDropzone || isOverAction)) {
+    if (
+      isFromPalette &&
+      (isOverDropzone || (isOverAction && !isOverLoopDropzone))
+    ) {
       const action = activeId.replace('palette-', '') as Action;
+      const newActions = [...actions];
 
-      if (isOverDropzone) {
-        onActionsChange([...actions, action]);
+      if (action === 'loop') {
+        const loopAction: LoopAction = {
+          type: 'loop',
+          iterations: 2,
+          actions: [],
+        };
+        if (isOverDropzone) {
+          newActions.push(loopAction);
+        } else {
+          const index = parseInt(overId.replace('action-', ''));
+          newActions.splice(index, 0, loopAction);
+        }
       } else {
-        const index = parseInt(overId.replace('action-', ''));
-        const newActions = [...actions];
-        newActions.splice(index, 0, action);
+        if (isOverDropzone) {
+          newActions.push(action);
+        } else {
+          const index = parseInt(overId.replace('action-', ''));
+          newActions.splice(index, 0, action);
+        }
+      }
+      onActionsChange(newActions);
+    } else if (isFromPalette && (isOverLoopDropzone || isOverNested)) {
+      const action = activeId.replace('palette-', '') as Action;
+      if (action === 'loop') return;
+
+      const loopIdMatch = overId.match(/action-(\d+)/);
+      if (!loopIdMatch) return;
+
+      const loopIndex = parseInt(loopIdMatch[1]);
+      const newActions = [...actions];
+      const loopAction = newActions[loopIndex] as LoopAction;
+
+      if (loopAction?.type === 'loop') {
+        if (isOverLoopDropzone) {
+          loopAction.actions.push(action);
+        } else {
+          const nestedIndex = parseInt(overId.split('-nested-')[1]);
+          loopAction.actions.splice(nestedIndex, 0, action);
+        }
         onActionsChange(newActions);
       }
-    }
-    // Reorder existing actions
-    else if (isFromActions && isOverAction) {
+    } else if (isFromActions && isOverAction && !isOverLoopDropzone) {
       const oldIndex = parseInt(activeId.replace('action-', ''));
       const newIndex = parseInt(overId.replace('action-', ''));
 
-      if (oldIndex !== newIndex) {
-        onActionsChange(arrayMove(actions, oldIndex, newIndex));
+      if (oldIndex === newIndex) return;
+
+      onActionsChange(arrayMove(actions, oldIndex, newIndex));
+    } else if (isFromActions && isOverLoopDropzone) {
+      const oldIndex = parseInt(activeId.replace('action-', ''));
+      const movingAction = actions[oldIndex];
+
+      if (typeof movingAction !== 'string') return;
+
+      const loopIdMatch = overId.match(/action-(\d+)/);
+      if (!loopIdMatch) return;
+
+      const loopIndex = parseInt(loopIdMatch[1]);
+      const newActions = actions.filter((_, i) => i !== oldIndex);
+      const adjustedIndex = oldIndex < loopIndex ? loopIndex - 1 : loopIndex;
+      const loopAction = newActions[adjustedIndex] as LoopAction;
+
+      if (loopAction?.type === 'loop') {
+        loopAction.actions.push(movingAction);
+        onActionsChange(newActions);
+      }
+    } else if (isFromNested && isOverNested) {
+      const activeLoopIndex = parseInt(
+        activeId.match(/action-(\d+)-nested/)?.[1] || '0',
+      );
+      const overLoopIndex = parseInt(
+        overId.match(/action-(\d+)-nested/)?.[1] || '0',
+      );
+
+      if (activeLoopIndex !== overLoopIndex) return;
+
+      const oldIndex = parseInt(activeId.split('-nested-')[1]);
+      const newIndex = parseInt(overId.split('-nested-')[1]);
+
+      if (oldIndex === newIndex) return;
+
+      const newActions = [...actions];
+      const loopAction = newActions[activeLoopIndex] as LoopAction;
+
+      if (loopAction?.type === 'loop') {
+        loopAction.actions = arrayMove(loopAction.actions, oldIndex, newIndex);
+        onActionsChange(newActions);
       }
     }
   };
@@ -192,14 +417,41 @@ export function ActionBuilder({
     onActionsChange(actions.filter((_, i) => i !== index));
   };
 
+  const handleRemoveNestedAction = (loopIndex: number, nestedIndex: number) => {
+    const newActions = [...actions];
+    const loopAction = newActions[loopIndex] as LoopAction;
+
+    if (loopAction && loopAction.type === 'loop') {
+      loopAction.actions = loopAction.actions.filter(
+        (_, i) => i !== nestedIndex,
+      );
+      onActionsChange(newActions);
+    }
+  };
+
+  const handleIterationsChange = (loopIndex: number, newIterations: number) => {
+    const newActions = [...actions];
+    const loopAction = newActions[loopIndex] as LoopAction;
+
+    if (loopAction?.type === 'loop') {
+      loopAction.iterations = newIterations;
+      onActionsChange(newActions);
+    }
+  };
+
   const getActiveAction = (): Action | null => {
     if (!activeId) return null;
+
     if (activeId.startsWith('palette-')) {
       return activeId.replace('palette-', '') as Action;
     }
+
     if (activeId.startsWith('action-')) {
-      return actions[parseInt(activeId.replace('action-', ''))] as Action;
+      const index = parseInt(activeId.replace('action-', ''));
+      const action = actions[index];
+      return typeof action === 'string' ? action : null;
     }
+
     return null;
   };
 
@@ -215,8 +467,8 @@ export function ActionBuilder({
           <h4 className="mb-2 text-sm font-semibold text-gray-700">
             Available Actions
           </h4>
-          <div className="flex gap-2">
-            {filteredActions.map((action) => (
+          <div className="flex flex-wrap gap-2">
+            {availableActions.map((action) => (
               <DraggableAction
                 key={`palette-${action}`}
                 id={`palette-${action}`}
@@ -226,7 +478,12 @@ export function ActionBuilder({
           </div>
         </div>
 
-        <ActionsDropZone actions={actions} onRemove={handleRemoveAction} />
+        <ActionsDropZone
+          actions={actions}
+          onRemove={handleRemoveAction}
+          onNestedRemove={handleRemoveNestedAction}
+          onIterationsChange={handleIterationsChange}
+        />
       </div>
 
       <DragOverlay>
@@ -239,9 +496,16 @@ export function ActionBuilder({
 interface ActionsDropZoneProps {
   actions: GameAction[];
   onRemove: (index: number) => void;
+  onNestedRemove: (loopIndex: number, nestedIndex: number) => void;
+  onIterationsChange: (loopIndex: number, newIterations: number) => void;
 }
 
-function ActionsDropZone({ actions, onRemove }: ActionsDropZoneProps) {
+function ActionsDropZone({
+  actions,
+  onRemove,
+  onNestedRemove,
+  onIterationsChange,
+}: ActionsDropZoneProps) {
   const { setNodeRef } = useDroppable({ id: 'actions-dropzone' });
 
   return (
@@ -268,6 +532,12 @@ function ActionsDropZone({ actions, onRemove }: ActionsDropZoneProps) {
                 id={`action-${index}`}
                 action={action}
                 onRemove={() => onRemove(index)}
+                onNestedRemove={(nestedIndex) =>
+                  onNestedRemove(index, nestedIndex)
+                }
+                onIterationsChange={(newIterations) =>
+                  onIterationsChange(index, newIterations)
+                }
               />
             ))
           )}
