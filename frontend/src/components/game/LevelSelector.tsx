@@ -160,10 +160,12 @@ export function LevelSelector({
                         onClick={() => setSelectedLevel(level)}
                         outline={currentLevel?.index !== level.index}
                         className={`h-12 w-12 border-2 text-lg font-bold ${
-                          isCompleted
-                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                            : 'text-white'
-                        }`}
+                          currentLevel?.index === level.index
+                            ? 'bg-primary-600 hover:bg-primary-700'
+                            : isCompleted
+                              ? 'bg-primary-800 hover:bg-primary-900'
+                              : ''
+                        } text-white`}
                       >
                         {level.index}
                       </Button>
