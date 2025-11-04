@@ -26,7 +26,6 @@ const API = 'http://localhost:5050';
 export function useLeaderboard() {
   const queryClient = useQueryClient();
 
-  // Get user's current leaderboard
   const {
     isLoading,
     data: leaderboard,
@@ -43,7 +42,6 @@ export function useLeaderboard() {
       });
 
       if (res.status === 404) {
-        // User doesn't have a leaderboard yet
         return null;
       }
 
@@ -63,7 +61,6 @@ export function useLeaderboard() {
     staleTime: 1 * 60 * 1000, // 1 minute
   });
 
-  // Create a new leaderboard
   const createMutation = useMutation({
     mutationFn: async (data: CreateLeaderboardData) => {
       const token = getToken();
@@ -99,7 +96,6 @@ export function useLeaderboard() {
     },
   });
 
-  // Join a leaderboard
   const joinMutation = useMutation({
     mutationFn: async (leaderboardId: number) => {
       const token = getToken();

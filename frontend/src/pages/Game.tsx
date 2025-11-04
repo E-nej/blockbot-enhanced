@@ -191,7 +191,7 @@ export default function Game() {
           <Button
             size="xl"
             className="w-full"
-            onClick={() => navigate('/level-select')}
+            onClick={() => navigate('/game/levels')}
             disabled={!leaderboard}
           >
             Začni igro

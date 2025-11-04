@@ -1,35 +1,94 @@
 import { useState, useRef } from 'react';
+import { Button, Modal, ModalBody, ModalHeader } from 'flowbite-react';
 import { executeActions } from '../../game/engine';
 import { ActionBuilder } from './ActionBuilder';
 import { LevelGrid } from './LevelGrid';
 import { GameControls } from './GameControls';
+import { useGameCompletion } from '../../hooks/useGameCompletion';
 import type { Level, GameAction, GameState, Direction } from '../../types/game';
 
 interface GamePlayProps {
   level: Level;
   onBack: () => void;
+  onNextLevel: () => void;
+  hasNextLevel: boolean;
 }
 
-export function GamePlay({ level, onBack }: GamePlayProps) {
+export function GamePlay({
+  level,
+  onBack,
+  onNextLevel,
+  hasNextLevel,
+}: GamePlayProps) {
   const [actions, setActions] = useState<GameAction[]>([]);
   const [result, setResult] = useState<GameState | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [isDead, setIsDead] = useState(false);
+  const [showWinModal, setShowWinModal] = useState(false);
   const rotationRef = useRef(0);
   const lastDirectionRef = useRef<Direction>('up');
+  const { completeGame } = useGameCompletion();
+
+  const MAX_ACTIONS = 20;
+
+  const calculateActionsUsed = (actions: GameAction[]): number => {
+    return actions.reduce((total, action) => {
+      if (typeof action === 'object' && action.type === 'loop') {
+        return total + action.actions.length + 1;
+      }
+      return total + 1;
+    }, 0);
+  };
 
   const handleExecute = async () => {
     setIsExecuting(true);
-    await executeActions(level, actions, (state) => {
+    const finalState = await executeActions(level, actions, (state) => {
       setResult({ ...state });
     });
     setIsExecuting(false);
+
+    if (finalState.isFailed) {
+      setIsDead(true);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setIsDead(false);
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      setResult(null);
+      rotationRef.current = 0;
+      lastDirectionRef.current = 'up';
+    } else if (finalState.isComplete) {
+      const actionsUsed = calculateActionsUsed(actions);
+      const stars = MAX_ACTIONS - actionsUsed;
+
+      try {
+        await completeGame({
+          gameId: level.index,
+          data: {
+            blocks_used: JSON.stringify(actions),
+            stars: stars,
+            completed: true,
+          },
+        });
+      } catch (error) {
+        console.error('Failed to save game completion:', error);
+      }
+
+      setShowWinModal(true);
+    }
   };
 
   const handleReset = () => {
     setActions([]);
     setResult(null);
+    setIsDead(false);
     rotationRef.current = 0;
     lastDirectionRef.current = 'up';
+  };
+
+  const handleNextLevel = () => {
+    setShowWinModal(false);
+    handleReset();
+    onNextLevel();
   };
 
   return (
@@ -51,6 +110,7 @@ export function GamePlay({ level, onBack }: GamePlayProps) {
                 result={result}
                 rotationRef={rotationRef}
                 lastDirectionRef={lastDirectionRef}
+                isDead={isDead}
               />
             </div>
 
@@ -73,30 +133,38 @@ export function GamePlay({ level, onBack }: GamePlayProps) {
           />
 
           {result && (
-            <div className="mx-8 mt-4 rounded-lg bg-gray-50 p-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="font-semibold">Complete:</span>{' '}
-                  <span
-                    className={
-                      result.isComplete ? 'text-green-600' : 'text-red-600'
-                    }
-                  >
-                    {result.isComplete ? '✓ Yes' : '✗ No'}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold">Failed:</span>{' '}
-                  <span
-                    className={
-                      result.isFailed ? 'text-red-600' : 'text-green-600'
-                    }
-                  >
-                    {result.isFailed ? '✓ Yes' : '✗ No'}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <>
+              {result.isComplete && (
+                <Modal
+                  show={showWinModal}
+                  size="md"
+                  onClose={() => setShowWinModal(false)}
+                  popup
+                >
+                  <ModalHeader />
+                  <ModalBody>
+                    <div className="text-center">
+                      <h3 className="mb-5 text-2xl font-bold text-gray-900">
+                        Čestitke!
+                      </h3>
+                      <p className="mb-5 text-base text-gray-500">
+                        Uspešno si zaključil stopnjo {level.index}!
+                      </p>
+                      <div className="flex flex-col gap-3">
+                        {hasNextLevel && (
+                          <Button onClick={handleNextLevel}>
+                            Nadaljuj na naslednjo stopnjo
+                          </Button>
+                        )}
+                        <Button color="alternative" onClick={onBack}>
+                          Nazaj na izbiro stopenj
+                        </Button>
+                      </div>
+                    </div>
+                  </ModalBody>
+                </Modal>
+              )}
+            </>
           )}
         </div>
       </div>

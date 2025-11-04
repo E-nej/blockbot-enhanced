@@ -5,6 +5,7 @@ interface LevelGridProps {
   result: GameState | null;
   rotationRef: React.MutableRefObject<number>;
   lastDirectionRef: React.MutableRefObject<Direction>;
+  isDead?: boolean;
 }
 
 export function LevelGrid({
@@ -12,6 +13,7 @@ export function LevelGrid({
   result,
   rotationRef,
   lastDirectionRef,
+  isDead = false,
 }: LevelGridProps) {
   return (
     <div
@@ -142,6 +144,9 @@ export function LevelGrid({
                 height: `calc(${cellSize}% - 0.5rem)`,
                 padding: '0.25rem',
                 transform: `rotate(${rotationRef.current}deg)`,
+                filter: isDead
+                  ? 'brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5)'
+                  : 'none',
               }}
             />
           </>

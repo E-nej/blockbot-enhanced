@@ -293,6 +293,24 @@ export function ActionBuilder({
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
 
+  const MAX_ACTIONS = 20;
+
+  const totalActionsCount = actions.reduce((total, action) => {
+    if (typeof action === 'object' && action.type === 'loop') {
+      return total + action.actions.length + 1;
+    }
+    return total + 1;
+  }, 0);
+
+  const calculateNewCount = (newActions: GameAction[]): number => {
+    return newActions.reduce((total, action) => {
+      if (typeof action === 'object' && action.type === 'loop') {
+        return total + action.actions.length + 1;
+      }
+      return total + 1;
+    }, 0);
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
   };
@@ -342,7 +360,10 @@ export function ActionBuilder({
           newActions.splice(index, 0, action);
         }
       }
-      onActionsChange(newActions);
+
+      if (calculateNewCount(newActions) <= MAX_ACTIONS) {
+        onActionsChange(newActions);
+      }
     } else if (isFromPalette && (isOverLoopDropzone || isOverNested)) {
       const action = activeId.replace('palette-', '') as Action;
       if (action === 'loop') return;
@@ -361,7 +382,10 @@ export function ActionBuilder({
           const nestedIndex = parseInt(overId.split('-nested-')[1]);
           loopAction.actions.splice(nestedIndex, 0, action);
         }
-        onActionsChange(newActions);
+
+        if (calculateNewCount(newActions) <= MAX_ACTIONS) {
+          onActionsChange(newActions);
+        }
       }
     } else if (isFromActions && isOverAction && !isOverLoopDropzone) {
       const oldIndex = parseInt(activeId.replace('action-', ''));
@@ -474,7 +498,7 @@ export function ActionBuilder({
 
         <div className="border-primary-700 border-t-2"></div>
 
-        <div className="flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center justify-between">
           <div className="flex flex-wrap gap-2">
             {availableActions.map((action) => (
               <DraggableAction
@@ -483,6 +507,9 @@ export function ActionBuilder({
                 action={action}
               />
             ))}
+          </div>
+          <div className="p-2 text-2xl font-bold text-white">
+            {totalActionsCount}/{MAX_ACTIONS}
           </div>
         </div>
       </div>

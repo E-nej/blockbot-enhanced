@@ -19,8 +19,31 @@ export default function LevelSelect() {
     setSelectedLevel(null);
   };
 
+  const handleNextLevel = () => {
+    if (selectedLevel) {
+      const currentIndex = levels.findIndex(
+        (l) => l.index === selectedLevel.index,
+      );
+      if (currentIndex !== -1 && currentIndex < levels.length - 1) {
+        setSelectedLevel(levels[currentIndex + 1]);
+      }
+    }
+  };
+
+  const hasNextLevel = selectedLevel
+    ? levels.findIndex((l) => l.index === selectedLevel.index) <
+      levels.length - 1
+    : false;
+
   if (selectedLevel) {
-    return <GamePlay level={selectedLevel} onBack={handleBack} />;
+    return (
+      <GamePlay
+        level={selectedLevel}
+        onBack={handleBack}
+        onNextLevel={handleNextLevel}
+        hasNextLevel={hasNextLevel}
+      />
+    );
   }
 
   return (

@@ -1,6 +1,8 @@
 import { Button } from 'flowbite-react';
 import type { Level, Action } from '../../types/game';
 import { useState, useMemo } from 'react';
+import { useGameCompletion } from '../../hooks/useGameCompletion';
+import { FaStar } from 'react-icons/fa';
 
 interface LevelSelectProps {
   levels: Level[];
@@ -33,6 +35,7 @@ export function LevelSelector({
   loading,
   error,
 }: LevelSelectProps) {
+  const { completedGames } = useGameCompletion();
   const defaultLevel = useMemo(
     () => (levels.length > 0 ? levels[0] : null),
     [levels],
@@ -40,6 +43,19 @@ export function LevelSelector({
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
 
   const currentLevel = selectedLevel || defaultLevel;
+
+  const completedLevelsMap = useMemo(() => {
+    console.log('Completed games:', completedGames);
+    const map = new Map<number, number>();
+    completedGames.forEach((game) => {
+      const levelNum = Number(game.level);
+      const starsNum = Number(game.stars);
+      console.log(`Mapping level ${levelNum} with ${starsNum} stars`);
+      map.set(levelNum, starsNum);
+    });
+    console.log('Completed levels map:', map);
+    return map;
+  }, [completedGames]);
 
   if (loading) {
     return (
@@ -112,6 +128,18 @@ export function LevelSelector({
                       ))}
                     </div>
                   </div>
+
+                  {completedLevelsMap.get(currentLevel.index) !== undefined && (
+                    <div className="mb-3">
+                      <h4 className="mb-2 text-sm font-medium text-gray-200">
+                        Najboljši rezultat:
+                      </h4>
+                      <div className="flex items-center gap-2 text-2xl font-bold text-primary-600">
+                        <FaStar />
+                        {completedLevelsMap.get(currentLevel.index)}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center text-lg text-white">
@@ -122,16 +150,26 @@ export function LevelSelector({
 
             <div className="flex w-[50%] flex-col items-center justify-end">
               <div className="grid grid-cols-5 gap-0">
-                {levels.slice(0, 12).map((level) => (
-                  <Button
-                    key={level.index}
-                    onClick={() => setSelectedLevel(level)}
-                    outline={currentLevel?.index !== level.index}
-                    className="m-2 h-12 w-12 border-2 text-lg font-bold text-white"
-                  >
-                    {level.index}
-                  </Button>
-                ))}
+                {levels.slice(0, 12).map((level) => {
+                  const stars = completedLevelsMap.get(level.index);
+                  const isCompleted = stars !== undefined;
+
+                  return (
+                    <div key={level.index} className="relative m-2">
+                      <Button
+                        onClick={() => setSelectedLevel(level)}
+                        outline={currentLevel?.index !== level.index}
+                        className={`h-12 w-12 border-2 text-lg font-bold ${
+                          isCompleted
+                            ? 'bg-primary-600 text-white hover:bg-primary-700'
+                            : 'text-white'
+                        }`}
+                      >
+                        {level.index}
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -112,11 +112,9 @@ function moveForward(
   ) {
     return {
       ...state,
+      isFailed: true,
       isJumping: false,
-      moveLog: [
-        ...state.moveLog,
-        `Forward blocked - stayed at (${state.playerPosition.x}, ${state.playerPosition.y})`,
-      ],
+      moveLog: [...state.moveLog, 'Invalid move - FAILED!'],
     };
   }
 
