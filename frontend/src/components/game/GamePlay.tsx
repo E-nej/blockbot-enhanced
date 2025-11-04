@@ -26,8 +26,8 @@ export function GamePlay({
   const [isExecuting, setIsExecuting] = useState(false);
   const [isDead, setIsDead] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
-  const rotationRef = useRef(0);
-  const lastDirectionRef = useRef<Direction>('up');
+  const rotationRef = useRef(90);
+  const lastDirectionRef = useRef<Direction>('right');
   const { completeGame } = useGameCompletion();
 
   const MAX_ACTIONS = 20;
@@ -55,8 +55,8 @@ export function GamePlay({
 
       await new Promise((resolve) => setTimeout(resolve, 100));
       setResult(null);
-      rotationRef.current = 0;
-      lastDirectionRef.current = 'up';
+      rotationRef.current = 90;
+      lastDirectionRef.current = 'right';
     } else if (finalState.isComplete) {
       const actionsUsed = calculateActionsUsed(actions);
       const stars = MAX_ACTIONS - actionsUsed;
@@ -82,8 +82,8 @@ export function GamePlay({
     setActions([]);
     setResult(null);
     setIsDead(false);
-    rotationRef.current = 0;
-    lastDirectionRef.current = 'up';
+    rotationRef.current = 90;
+    lastDirectionRef.current = 'right';
   };
 
   const handleNextLevel = () => {
@@ -104,12 +104,7 @@ export function GamePlay({
         }}
       >
         <div className="flex h-full w-full flex-col justify-center gap-4 p-12">
-          <Button
-            onClick={onBack}
-            outline
-            size="lg"
-            className='mt-4'
-          >
+          <Button onClick={onBack} outline size="lg" className="mt-4">
             <FaArrowLeft className="mr-2 h-4 w-4" />
             Nazaj na izbiro stopnje
           </Button>

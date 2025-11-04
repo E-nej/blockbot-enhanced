@@ -31,12 +31,12 @@ interface ActionBlockProps {
 }
 
 const actionAssets: Record<Action, string> = {
-  forward: '/game/actions/forward.svg',
-  turnLeft: '/game/actions/turn-left.svg',
-  turnRight: '/game/actions/turn-right.svg',
-  jump: '/game/actions/jump.svg',
-  use: '/game/actions/use.svg',
-  loop: '/game/actions/loop.svg',
+  forward: '/game_assets/actions/forward.svg',
+  turnLeft: '/game_assets/actions/turn-left.svg',
+  turnRight: '/game_assets/actions/turn-right.svg',
+  jump: '/game_assets/actions/jump.svg',
+  use: '/game_assets/actions/use.svg',
+  loop: '/game_assets/actions/loop.svg',
 };
 
 const actionLabels: Record<Action, string> = {

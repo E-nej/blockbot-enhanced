@@ -33,49 +33,49 @@ export function LevelGrid({
               key={`${x}-${y}`}
               className="relative aspect-square rounded-lg"
               style={{
-                backgroundImage: `url(/game/tiles/${cell}.png)`,
+                backgroundImage: `url(/game_assets/tiles/${cell}.png)`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }}
             >
               {!result && isStartPosition && (
                 <img
-                  src="/game/objects/start.svg"
+                  src="/game_assets/objects/start.svg"
                   alt="Start"
                   className="absolute inset-0 h-full w-full p-2"
                 />
               )}
               {result && obj === 'start' && (
                 <img
-                  src="/game/objects/start.svg"
+                  src="/game_assets/objects/start.svg"
                   alt="Start"
                   className="absolute inset-0 h-full w-full p-2"
                 />
               )}
               {currentObj === 'finish' && (
                 <img
-                  src="/game/objects/finish.svg"
+                  src="/game_assets/objects/finish.svg"
                   alt="Finish"
                   className="absolute inset-0 h-full w-full p-2"
                 />
               )}
               {currentObj === 'key' && (
                 <img
-                  src="/game/objects/key.svg"
+                  src="/game_assets/objects/key.svg"
                   alt="Key"
                   className="absolute inset-0 h-full w-full p-4"
                 />
               )}
               {currentObj === 'lock' && (
                 <img
-                  src="/game/objects/lock.svg"
+                  src="/game_assets/objects/lock.svg"
                   alt="Lock"
                   className="absolute inset-0 h-full w-full p-4"
                 />
               )}
               {currentObj === 'obstacle' && (
                 <img
-                  src="/game/objects/obstacle.svg"
+                  src="/game_assets/objects/obstacle.svg"
                   alt="Obstacle"
                   className="absolute inset-0 h-full w-full p-2"
                 />
@@ -99,7 +99,7 @@ export function LevelGrid({
         const cellSize = 100 / level.levelMatrix[0].length;
         const isJumping = result?.isJumping || false;
 
-        const currentDirection = result?.playerDirection || 'up';
+        const currentDirection = result?.playerDirection || 'right';
         const directionToDegrees: Record<Direction, number> = {
           up: 0,
           right: 90,
@@ -134,7 +134,7 @@ export function LevelGrid({
             )}
 
             <img
-              src="/game/player/robot.svg"
+              src="/game_assets/player/robot.svg"
               alt="Player"
               className="pointer-events-none absolute transition-all duration-300 ease-in-out"
               style={{

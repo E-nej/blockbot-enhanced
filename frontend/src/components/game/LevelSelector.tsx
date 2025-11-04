@@ -12,12 +12,12 @@ interface LevelSelectProps {
 }
 
 const ACTION_ICONS: Record<Action, string> = {
-  forward: '/game/actions/forward.svg',
-  turnLeft: '/game/actions/turn-left.svg',
-  turnRight: '/game/actions/turn-right.svg',
-  jump: '/game/actions/jump.svg',
-  use: '/game/actions/use.svg',
-  loop: '/game/actions/loop.svg',
+  forward: '/game_assets/actions/forward.svg',
+  turnLeft: '/game_assets/actions/turn-left.svg',
+  turnRight: '/game_assets/actions/turn-right.svg',
+  jump: '/game_assets/actions/jump.svg',
+  use: '/game_assets/actions/use.svg',
+  loop: '/game_assets/actions/loop.svg',
 };
 
 const ACTION_NAMES: Record<Action, string> = {
@@ -82,7 +82,7 @@ export function LevelSelector({
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-120px)] items-center justify-center p-8 mt-7">
+    <div className="mt-7 flex min-h-[calc(100vh-120px)] items-center justify-center p-8">
       <div
         className="relative mx-auto overflow-hidden rounded-[8rem] bg-[#0F2F2C]"
         style={{
@@ -134,7 +134,7 @@ export function LevelSelector({
                       <h4 className="mb-2 text-sm font-medium text-gray-200">
                         Najboljši rezultat:
                       </h4>
-                      <div className="flex items-center gap-2 text-2xl font-bold text-primary-600">
+                      <div className="text-primary-600 flex items-center gap-2 text-2xl font-bold">
                         <FaStar />
                         {completedLevelsMap.get(currentLevel.index)}
                       </div>
@@ -161,7 +161,7 @@ export function LevelSelector({
                         outline={currentLevel?.index !== level.index}
                         className={`h-12 w-12 border-2 text-lg font-bold ${
                           isCompleted
-                            ? 'bg-primary-600 text-white hover:bg-primary-700'
+                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
                             : 'text-white'
                         }`}
                       >
