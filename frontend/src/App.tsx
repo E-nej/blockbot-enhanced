@@ -3,6 +3,7 @@ import { ThemeInit } from '../.flowbite-react/init';
 import NavbarComponent from './components/Navbar';
 import Home from './pages/Home';
 import Game from './pages/Game';
+import LevelSelect from './pages/LevelSelect';
 import Leaderboards from './pages/Leaderboards';
 import Auth from './pages/Auth';
 
@@ -17,11 +18,14 @@ export default function App() {
           backgroundSize: '100% auto',
         }}
       >
-        <NavbarComponent />
-        <main className="pt-8">
+        <div className="sticky top-0 z-50">
+          <NavbarComponent />
+        </div>
+        <main>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<Game />} />
+            <Route path="/game/levels" element={<LevelSelect />} />
             <Route path="/leaderboards" element={<Leaderboards />} />
             <Route path="/auth" element={<Auth />} />
           </Routes>
