@@ -8,7 +8,7 @@ type Leaderboard = {
 };
 
 type LeaderboardRow = {
-  user_id: number;
+  user: string;
   total_stars: number;
 };
 

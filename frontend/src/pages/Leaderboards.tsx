@@ -39,8 +39,7 @@ export default function Leaderboards() {
               </h1>
             </div>
           ) : leaderboardRows.length === 0 ? (
-            <div className="flex flex-col items-center gap-4">
-            </div>
+            <div className="flex flex-col items-center gap-4"></div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -49,7 +48,7 @@ export default function Leaderboards() {
                     Mesto
                   </TableHeadCell>
                   <TableHeadCell className="bg-transparent text-xl text-white">
-                    Uporabnik ID
+                    Uporabnik
                   </TableHeadCell>
                   <TableHeadCell className="bg-transparent text-xl text-white">
                     Skupno zvezdic
@@ -58,14 +57,14 @@ export default function Leaderboards() {
                 <TableBody className="divide-y">
                   {leaderboardRows.map((row, index) => (
                     <TableRow
-                      key={row.user_id}
+                      key={`${row.user}-${index}`}
                       className="border-gray-600 bg-transparent"
                     >
                       <TableCell className="text-xl font-medium whitespace-nowrap text-white">
                         {index + 1}
                       </TableCell>
                       <TableCell className="text-xl text-white">
-                        {row.user_id}
+                        {row.user}
                       </TableCell>
                       <TableCell>
                         <div className="text-primary-400 flex items-center gap-2 text-2xl font-bold">
