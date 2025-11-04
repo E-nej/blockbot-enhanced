@@ -17,6 +17,7 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Tooltip } from 'flowbite-react';
 import type { Action, GameAction, LoopAction } from '../../types/game';
 
 interface ActionBuilderProps {
@@ -46,6 +47,15 @@ const actionLabels: Record<Action, string> = {
   jump: 'Jump',
   use: 'Use Item',
   loop: 'Loop',
+};
+
+const actionTooltips: Record<Action, string> = {
+  forward: 'Premakni se naprej',
+  turnLeft: 'Obrni se levo',
+  turnRight: 'Obrni se desno',
+  jump: 'Skoči naprej',
+  use: 'Uporabi predmet',
+  loop: 'Ponavljanje',
 };
 
 function ActionBlock({ action, isDragging }: ActionBlockProps) {
@@ -268,18 +278,20 @@ function DraggableAction({ action, id }: DraggableActionProps) {
     useDraggable({ id });
 
   return (
-    <div
-      ref={setNodeRef}
-      style={{
-        transform: transform
-          ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-          : undefined,
-      }}
-      {...attributes}
-      {...listeners}
-    >
-      <ActionBlock action={action} isDragging={isDragging} />
-    </div>
+    <Tooltip content={actionTooltips[action]}>
+      <div
+        ref={setNodeRef}
+        style={{
+          transform: transform
+            ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+            : undefined,
+        }}
+        {...attributes}
+        {...listeners}
+      >
+        <ActionBlock action={action} isDragging={isDragging} />
+      </div>
+    </Tooltip>
   );
 }
 
