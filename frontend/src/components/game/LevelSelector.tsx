@@ -82,7 +82,7 @@ export function LevelSelector({
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-120px)] items-center justify-center p-8">
+    <div className="flex min-h-[calc(100vh-120px)] items-center justify-center p-8 mt-7">
       <div
         className="relative mx-auto overflow-hidden rounded-[8rem] bg-[#0F2F2C]"
         style={{
