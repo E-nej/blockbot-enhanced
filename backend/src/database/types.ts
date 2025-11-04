@@ -47,7 +47,7 @@ export const UsersLeaderboard = z.object({
 });
 
 export const LeaderboardRow = z.object({
-    user: z.number().positive(),
+    user: z.string(),
     total_stars: z.number().positive()
 });
 

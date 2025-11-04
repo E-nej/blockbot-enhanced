@@ -44,12 +44,13 @@ export const makeQueries = (databaseUrl: string): Queries => {
                     ORDER BY lu.user, lu.level, lu.id DESC
                 )
                 SELECT
-                    ul.user AS user_id,
+                    us.username AS user,
                     SUM(le.stars) AS total_stars
                 FROM users_leaderboard ul
                 LEFT JOIN latest_entries le ON le.user = ul.user
+                LEFT JOIN "user" us ON us.id = ul.user
                 WHERE ul.leaderboard = $1
-                GROUP BY ul.user
+                GROUP BY us.username
                 ORDER BY total_stars DESC`,
                 [leaderboard]
             );
