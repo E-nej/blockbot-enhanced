@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Button, Modal, ModalBody, ModalHeader } from 'flowbite-react';
+import { FaArrowLeft } from 'react-icons/fa';
 import { executeActions } from '../../game/engine';
 import { ActionBuilder } from './ActionBuilder';
 import { LevelGrid } from './LevelGrid';
@@ -103,6 +104,15 @@ export function GamePlay({
         }}
       >
         <div className="flex h-full w-full flex-col justify-center gap-4 p-12">
+          <Button
+            onClick={onBack}
+            outline
+            size="lg"
+            className='mt-4'
+          >
+            <FaArrowLeft className="mr-2 h-4 w-4" />
+            Nazaj na izbiro stopnje
+          </Button>
           <div className="flex items-start justify-between gap-8">
             <div className="w-[40%]">
               <LevelGrid
