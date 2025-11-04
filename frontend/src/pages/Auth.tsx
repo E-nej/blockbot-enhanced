@@ -86,7 +86,7 @@ export default function Auth() {
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-16">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md rounded-4xl py-2">
         <div className="space-y-6">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">

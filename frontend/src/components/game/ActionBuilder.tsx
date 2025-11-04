@@ -17,6 +17,7 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Tooltip } from 'flowbite-react';
 import type { Action, GameAction, LoopAction } from '../../types/game';
 
 interface ActionBuilderProps {
@@ -31,12 +32,12 @@ interface ActionBlockProps {
 }
 
 const actionAssets: Record<Action, string> = {
-  forward: '/game/actions/forward.svg',
-  turnLeft: '/game/actions/turn-left.svg',
-  turnRight: '/game/actions/turn-right.svg',
-  jump: '/game/actions/jump.svg',
-  use: '/game/actions/use.svg',
-  loop: '/game/actions/loop.svg',
+  forward: '/game_assets/actions/forward.svg',
+  turnLeft: '/game_assets/actions/turn-left.svg',
+  turnRight: '/game_assets/actions/turn-right.svg',
+  jump: '/game_assets/actions/jump.svg',
+  use: '/game_assets/actions/use.svg',
+  loop: '/game_assets/actions/loop.svg',
 };
 
 const actionLabels: Record<Action, string> = {
@@ -46,6 +47,15 @@ const actionLabels: Record<Action, string> = {
   jump: 'Jump',
   use: 'Use Item',
   loop: 'Loop',
+};
+
+const actionTooltips: Record<Action, string> = {
+  forward: 'Premakni se naprej',
+  turnLeft: 'Obrni se levo',
+  turnRight: 'Obrni se desno',
+  jump: 'Skoči naprej',
+  use: 'Uporabi predmet',
+  loop: 'Ponavljanje',
 };
 
 function ActionBlock({ action, isDragging }: ActionBlockProps) {
@@ -268,18 +278,20 @@ function DraggableAction({ action, id }: DraggableActionProps) {
     useDraggable({ id });
 
   return (
-    <div
-      ref={setNodeRef}
-      style={{
-        transform: transform
-          ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-          : undefined,
-      }}
-      {...attributes}
-      {...listeners}
-    >
-      <ActionBlock action={action} isDragging={isDragging} />
-    </div>
+    <Tooltip content={actionTooltips[action]}>
+      <div
+        ref={setNodeRef}
+        style={{
+          transform: transform
+            ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+            : undefined,
+        }}
+        {...attributes}
+        {...listeners}
+      >
+        <ActionBlock action={action} isDragging={isDragging} />
+      </div>
+    </Tooltip>
   );
 }
 

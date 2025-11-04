@@ -53,7 +53,7 @@ export function initializeGameState(level: Level): GameState {
 
   return {
     playerPosition: startPos,
-    playerDirection: 'up',
+    playerDirection: 'right',
     inventory: [],
     objectsMatrix: level.objectsMatrix.map((row) => [...row]),
     isComplete: false,
