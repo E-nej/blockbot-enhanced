@@ -18,7 +18,7 @@ export default function NavbarComponent() {
 
   return (
     <Navbar fluid rounded className="z-50 mb-0">
-      <Link to="/">
+      <Link to="/" className="w-64">
         <NavbarBrand>
           <img
             src="/logo.svg"
@@ -27,13 +27,17 @@ export default function NavbarComponent() {
           />
         </NavbarBrand>
       </Link>
-      <div className="flex gap-2 md:order-2">
+      <div className="flex w-64 justify-end gap-2 md:order-2">
         {user ? (
           <Dropdown
             arrowIcon={false}
             inline
             label={
-              <Button color="alternative" disabled={isLoading}>
+              <Button
+                color="alternative"
+                className="font-bold"
+                disabled={isLoading}
+              >
                 {user.username}
               </Button>
             }
