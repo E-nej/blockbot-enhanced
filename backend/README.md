@@ -50,3 +50,12 @@ Razveljavitev migracij:
 POSTGRES_URL=[postgresurl] npx node-pg-migrate up [n] -t [ime tabele kjer so migracije zapisane]
 ```
 
+## Posting
+
+Testiranje končnih točk se upravlja skozi [posting](https://posting.sh/) TUI:
+
+```sh
+posting --collection=./.posting
+```
+
+Če se ustvarjajo nove autenticirane končne točke pazi da se v `scripts` sekciji od odjemalca se doda `auth.py` skripta v pre-request sekcijo.
