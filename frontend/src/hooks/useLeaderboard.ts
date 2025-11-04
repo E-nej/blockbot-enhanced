@@ -7,6 +7,11 @@ type Leaderboard = {
   createdAt: string;
 };
 
+type LeaderboardRow = {
+  user_id: number;
+  total_stars: number;
+};
+
 type CreateLeaderboardData = {
   name: string;
 };
@@ -57,6 +62,36 @@ export function useLeaderboard() {
       return res.json();
     },
     enabled: !!getToken(),
+    retry: false,
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
+
+  const {
+    data: leaderboardRows,
+    isLoading: isLoadingRows,
+    error: rowsError,
+  } = useQuery({
+    queryKey: ['leaderboard-rows'],
+    queryFn: async (): Promise<LeaderboardRow[]> => {
+      const token = getToken();
+      if (!token) throw new Error('No token');
+
+      const res = await fetch(`${API}/leaderboard/rows`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res
+          .json()
+          .catch(() => ({ message: 'Failed to fetch leaderboard rows' }));
+        throw new Error(
+          errorData.message || `HTTP ${res.status}: ${res.statusText}`,
+        );
+      }
+
+      return res.json();
+    },
+    enabled: !!getToken() && !!leaderboard,
     retry: false,
     staleTime: 1 * 60 * 1000, // 1 minute
   });
@@ -134,6 +169,9 @@ export function useLeaderboard() {
     isLoading,
     error,
     refetch,
+    leaderboardRows: leaderboardRows || [],
+    isLoadingRows,
+    rowsError,
     createLeaderboard: createMutation.mutateAsync,
     joinLeaderboard: joinMutation.mutateAsync,
     isCreating: createMutation.isPending,
