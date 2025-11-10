@@ -13,7 +13,7 @@ export default function Leaderboards() {
   const { leaderboardRows, isLoadingRows, rowsError } = useLeaderboard();
 
   return (
-    <div className="flex min-h-[calc(100vh-120px)] items-center justify-center p-8">
+    <div className="flex min-h-[calc(100vh-120px)] items-center justify-center p-8 mt-7">
       <div
         className="relative mx-auto overflow-hidden rounded-[8rem] bg-[#0F2F2C]"
         style={{
@@ -27,7 +27,8 @@ export default function Leaderboards() {
         }}
       >
         {/* Screen Content */}
-        <div className="flex h-full w-full flex-col items-center justify-around p-16">
+        <div className="flex h-full w-full flex-col items-center justify-center p-16 gap-16">
+          <h2 className="text-4xl font-bold text-white mb-4">Lestvica</h2>
           {isLoadingRows ? (
             <div className="flex flex-col items-center gap-4">
               <div className="border-primary-500 h-16 w-16 animate-spin rounded-full border-b-2"></div>

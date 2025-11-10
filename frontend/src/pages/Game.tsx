@@ -46,10 +46,10 @@ export default function Game() {
       await createLeaderboard({ name: leaderboardName });
       setLeaderboardName('');
       setShowCreateForm(false);
-      setSuccessMessage('Leaderboard created successfully!');
+      setSuccessMessage('Skupina ustvarjena!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
-      console.error('Failed to create leaderboard:', error);
+      console.error('Napaka pri ustvarjanju skupine:', error);
     }
   };
 
@@ -65,10 +65,10 @@ export default function Game() {
     try {
       await joinLeaderboard(leaderboardId);
       setJoinCode('');
-      setSuccessMessage('Successfully joined leaderboard!');
+      setSuccessMessage('Pridružil si se skupini!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
-      console.error('Failed to join leaderboard:', error);
+      console.error('Napaka pri pridružitvi:', error);
 
       setJoinCode(leaderboard ? leaderboard.id.toString() : '');
     }
