@@ -59,7 +59,7 @@ export default function NavbarComponent() {
             </Link>
             <Link to="/auth?mode=register">
               <Button className="w-32" disabled={isLoading}>
-                Ustvari račun
+                Registracija
               </Button>
             </Link>
           </>
