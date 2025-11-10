@@ -13,6 +13,8 @@ services:
       - ../src:/usr/src/app/src
       - ../migrations:/usr/src/app/migrations
       - ../.env:/usr/src/app/.env
+    depends_on:
+      - postgres
 
   postgres:
     container_name: rups-db

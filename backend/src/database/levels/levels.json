@@ -1,8 +1,8 @@
 [
     {
         "index": 1,
-        "name": "First Steps",
-        "description": "Learn to move forward and reach the finish line.",
+        "name": "Prvi koraki",
+        "description": "Nauči se premikati naprej. Uporabi kocko za premik naprej do cilja.",
         "actions": [
             "forward"
         ],
@@ -16,9 +16,9 @@
             ],
             [
                 "ground",
-                "path",
-                "path",
-                "path",
+                "ground",
+                "ground",
+                "ground",
                 "ground"
             ],
             [
@@ -30,9 +30,9 @@
             ],
             [
                 "ground",
-                "path",
-                "path",
-                "path",
+                "ground",
+                "ground",
+                "ground",
                 "ground"
             ],
             [
@@ -53,16 +53,16 @@
             ],
             [
                 null,
-                "start",
                 null,
-                "finish",
+                null,
+                null,
                 null
             ],
             [
                 null,
+                "start",
                 null,
-                null,
-                null,
+                "finish",
                 null
             ],
             [
@@ -83,12 +83,11 @@
     },
     {
         "index": 2,
-        "name": "Turn Around",
-        "description": "Navigate by turning left and right to reach the goal.",
+        "name": "Obrni se",
+        "description": "Premakni se in se obrni v levo da prideš do cilja.",
         "actions": [
             "forward",
-            "turnLeft",
-            "turnRight"
+            "turnLeft"
         ],
         "levelMatrix": [
             [
@@ -100,7 +99,7 @@
             ],
             [
                 "ground",
-                "path",
+                "ground",
                 "ground",
                 "path",
                 "ground"
@@ -108,15 +107,15 @@
             [
                 "ground",
                 "path",
-                "ground",
+                "path",
                 "path",
                 "ground"
             ],
             [
                 "ground",
-                "path",
-                "path",
-                "path",
+                "ground",
+                "ground",
+                "ground",
                 "ground"
             ],
             [
@@ -137,14 +136,14 @@
             ],
             [
                 null,
-                "start",
+                null,
                 null,
                 "finish",
                 null
             ],
             [
                 null,
-                null,
+                "start",
                 null,
                 null,
                 null
@@ -167,8 +166,91 @@
     },
     {
         "index": 3,
-        "name": "Jump Over",
-        "description": "Use the jump action to overcome obstacles in your path.",
+        "name": "Obrni se v drugo smer",
+        "description": "Premakni se in se obrni v desno da prideš do cilja.",
+        "actions": [
+            "forward",
+            "turnRight"
+        ],
+        "levelMatrix": [
+            [
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground"
+            ],
+            [
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground"
+            ],
+            [
+                "ground",
+                "path",
+                "path",
+                "path",
+                "ground"
+            ],
+            [
+                "ground",
+                "ground",
+                "ground",
+                "path",
+                "ground"
+            ],
+            [
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground"
+            ]
+        ],
+        "objectsMatrix": [
+            [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            [
+                null,
+                "start",
+                null,
+                null,
+                null
+            ],
+            [
+                null,
+                null,
+                null,
+                "finish",
+                null
+            ],
+            [
+                null,
+                null,
+                null,
+                null,
+                null
+            ]
+        ]
+    },
+    {
+        "index": 4,
+        "name": "Skoči čez",
+        "description": "Uporabi akcijo skoči naprej in premagaj ovire na svoji poti.",
         "actions": [
             "forward",
             "turnLeft",
@@ -185,9 +267,9 @@
             ],
             [
                 "ground",
-                "path",
-                "path",
-                "path",
+                "ground",
+                "ground",
+                "ground",
                 "ground"
             ],
             [
@@ -199,9 +281,9 @@
             ],
             [
                 "ground",
-                "path",
-                "path",
-                "path",
+                "ground",
+                "ground",
+                "ground",
                 "ground"
             ],
             [
@@ -213,6 +295,13 @@
             ]
         ],
         "objectsMatrix": [
+            [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
             [
                 null,
                 null,
@@ -240,20 +329,13 @@
                 null,
                 null,
                 null
-            ],
-            [
-                null,
-                null,
-                null,
-                null,
-                null
             ]
         ]
     },
     {
-        "index": 4,
-        "name": "Key to Success",
-        "description": "Find the key and use it to unlock the lock blocking your path.",
+        "index": 5,
+        "name": "Ključ do uspeha",
+        "description": "Najdi ključ in odkleni ključavnico, ki ti blokira pot.",
         "actions": [
             "forward",
             "turnLeft",
@@ -271,18 +353,10 @@
             ],
             [
                 "ground",
-                "path",
-                "path",
-                "path",
-                "path",
-                "ground"
-            ],
-            [
-                "ground",
-                "path",
                 "ground",
                 "ground",
-                "path",
+                "ground",
+                "ground",
                 "ground"
             ],
             [
@@ -291,6 +365,134 @@
                 "path",
                 "path",
                 "path",
+                "ground"
+            ],
+            [
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground"
+            ],
+            [
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground"
+            ],
+            [
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground"
+            ]
+        ],
+        "objectsMatrix": [
+            [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            [
+                null,
+                "start",
+                "key",
+                "lock",
+                "finish",
+                null
+            ],
+            [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            ]
+        ]
+    },
+    {
+        "index": 6,
+        "name": "Prvo potovanje",
+        "description": "Z pridobljenim znanjem lahko grema na daljšo potovanje.",
+        "actions": [
+            "forward",
+            "turnLeft",
+            "turnRight",
+            "use",
+            "jump"
+        ],
+        "levelMatrix": [
+            [
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground",
+                "ground"
+            ],
+            [
+                "ground",
+                "path",
+                "ground",
+                "path",
+                "path",
+                "ground"
+            ],
+            [
+                "ground",
+                "path",
+                "ground",
+                "path",
+                "ground",
+                "ground"
+            ],
+            [
+                "ground",
+                "path",
+                "ground",
+                "path",
+                "ground",
+                "ground"
+            ],
+            [
+                "ground",
+                "path",
+                "path",
+                "path",
+                "ground",
                 "ground"
             ],
             [
@@ -339,6 +541,14 @@
                 null,
                 null,
                 null,
+                "obstacle",
+                null,
+                null
+            ],
+            [
+                null,
+                null,
+                null,
                 null,
                 null,
                 null
@@ -346,9 +556,9 @@
         ]
     },
     {
-        "index": 5,
-        "name": "Repeat Yourself",
-        "description": "Use loops to efficiently navigate through repetitive patterns.",
+        "index": 7,
+        "name": "Ponavljaj se",
+        "description": "Uporabi zanke za učinkovito premikanje.",
         "actions": [
             "forward",
             "turnLeft",
@@ -362,22 +572,11 @@
                 "ground",
                 "ground",
                 "ground",
-                "ground",
                 "ground"
             ],
             [
                 "ground",
                 "path",
-                "path",
-                "path",
-                "path",
-                "path",
-                "ground"
-            ],
-            [
-                "ground",
-                "ground",
-                "ground",
                 "ground",
                 "ground",
                 "path",
@@ -386,6 +585,21 @@
             [
                 "ground",
                 "path",
+                "ground",
+                "ground",
+                "path",
+                "ground"
+            ],
+            [
+                "ground",
+                "path",
+                "ground",
+                "ground",
+                "path",
+                "ground"
+            ],
+            [
+                "ground",
                 "path",
                 "path",
                 "path",
@@ -393,7 +607,6 @@
                 "ground"
             ],
             [
-                "ground",
                 "ground",
                 "ground",
                 "ground",
@@ -409,13 +622,11 @@
                 null,
                 null,
                 null,
-                null,
                 null
             ],
             [
                 null,
                 "start",
-                null,
                 null,
                 null,
                 "finish",
@@ -427,6 +638,13 @@
                 null,
                 null,
                 null,
+                null
+            ],
+            [
+                null,
+                null,
+                null,
+                null,
                 null,
                 null
             ],
@@ -436,11 +654,9 @@
                 null,
                 null,
                 null,
-                null,
                 null
             ],
             [
-                null,
                 null,
                 null,
                 null,
@@ -451,9 +667,9 @@
         ]
     },
     {
-        "index": 6,
-        "name": "Master Challenge",
-        "description": "Combine all your skills: movement, jumping, keys, and loops.",
+        "index": 8,
+        "name": "Glavni izziv",
+        "description": "Uporabi vse naučene veščine, da dosežeš cilj.",
         "actions": [
             "forward",
             "turnLeft",
@@ -475,8 +691,8 @@
             [
                 "ground",
                 "path",
-                "path",
                 "ground",
+                "path",
                 "path",
                 "path",
                 "ground"
@@ -485,27 +701,9 @@
                 "ground",
                 "path",
                 "ground",
-                "ground",
-                "ground",
-                "path",
-                "ground"
-            ],
-            [
-                "ground",
-                "path",
-                "path",
-                "path",
-                "path",
-                "path",
-                "ground"
-            ],
-            [
-                "ground",
-                "ground",
-                "ground",
                 "path",
                 "ground",
-                "ground",
+                "path",
                 "ground"
             ],
             [
@@ -515,6 +713,24 @@
                 "path",
                 "path",
                 "path",
+                "ground"
+            ],
+            [
+                "ground",
+                "ground",
+                "ground",
+                "path",
+                "ground",
+                "ground",
+                "ground"
+            ],
+            [
+                "ground",
+                "ground",
+                "ground",
+                "path",
+                "ground",
+                "ground",
                 "ground"
             ],
             [
@@ -557,9 +773,9 @@
             ],
             [
                 null,
+                null,
                 "obstacle",
-                "key",
-                "lock",
+                null,
                 null,
                 null,
                 null
@@ -568,7 +784,7 @@
                 null,
                 null,
                 null,
-                null,
+                "lock",
                 null,
                 null,
                 null
