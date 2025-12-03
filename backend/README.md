@@ -4,7 +4,7 @@
 
 Za uspešno postavitev potrebujemo naložen `Docker`
 
-Premenuj datoteko `example.env` v `.env`.
+Premenuj datoteko `.env.example` v `.env`.
 
 Navigiramo v direktorij deploy in poženemo compose skripto:
 
@@ -26,7 +26,7 @@ V `src/` direktoriju so mapice za:
     - `types.ts` - typescript tipi za tabele ter podatke pridobljene iz poizvedb v `queries.ts`.
 - `errors` - Tipi napak vrnjeni v zahtevkih
 - `middleware` - Express vmesni vtičniki
-- `routes` - v tej mapi se definirajo kočne točke zalednega sistema.
+- `routes` - v tej mapi se definirajo končne točke zalednega sistema.
 
 ## Migracije
 
