@@ -106,7 +106,23 @@ export const up = (pgm) => {
             references: '"leaderboard"',
             onDelete: 'CASCADE'
         }
-    })
+    });
+    
+//     pgm.createTable('challenges', {
+//         id: 'id',
+//         challenger_id: {   
+//             type: 'bigint',
+//             notNull: true,
+//             references: '"user"',
+//             onDelete: 'CASCADE',
+//         },
+//         challengee_id: {    
+//             type: 'bigint',
+//             notNull: true,
+//             references: '"user"',   
+//             onDelete: 'CASCADE',
+//         }
+// })
 };
 
 /**
@@ -120,4 +136,5 @@ export const down = (pgm) => {
     pgm.dropTable('leaderboard');
     pgm.dropTable('level');
     pgm.dropTable('user');
+    pgm.dropTable('challenges');
 };

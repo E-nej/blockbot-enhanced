@@ -6,6 +6,7 @@ import { makeHealthRoutes } from "./routes/health";
 import { makeUserRoutes } from "./routes/user";
 import { makeGameRoutes } from "./routes/game";
 import { makeLeaderboardRoutes } from './routes/leaderboard';
+import { makeChallengeRoutes } from "./routes/challenge";
 
 import { getConfig } from "./config";
 import { makeLevelRoutes } from "./routes/level";
@@ -37,6 +38,7 @@ export function makeApp(ctx: AppContext): Express {
   app.use('/game', makeGameRoutes(ctx));
   app.use('/leaderboard', makeLeaderboardRoutes(ctx));
   app.use('/levels/', makeLevelRoutes(ctx));
+  app.use('/challenges', makeChallengeRoutes(ctx));
 
   app.use(ctx.middleware.routeNotFound);
   app.use(ctx.middleware.errorHandler);

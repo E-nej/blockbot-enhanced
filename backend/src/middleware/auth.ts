@@ -12,7 +12,7 @@ export const authenticate = ( req: AuthRequest, res: Response, next: NextFunctio
         const authHeader = req.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            next(new HttpError(401, 'No token provided'));
+            return next(new HttpError(401, 'No token provided'));
         }
 
         const token = authHeader!.split(' ')[1];
@@ -21,19 +21,19 @@ export const authenticate = ( req: AuthRequest, res: Response, next: NextFunctio
         const decoded = jwt.verify(token, config.jwt_secret) as { userId: number };
         req.userId = decoded.userId;
 
-        next();
+        return next();
     }
     catch (error) {
         if (error instanceof HttpError) {
-            next(error)
+            return next(error)
         }
         if (error instanceof jwt.JsonWebTokenError) {
-            next(new HttpError(401, 'Invalid token'));
+            return next(new HttpError(401, 'Invalid token'));
         }
         if (error instanceof jwt.TokenExpiredError) {
-            next(new HttpError(401, 'Token expired'));
+            return next(new HttpError(401, 'Token expired'));
         } else {
-            next(new HttpError(401, 'Authentication failed'));
+            return next(new HttpError(401, 'Authentication failed'));
         }
     }
 };

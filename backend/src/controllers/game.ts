@@ -41,7 +41,7 @@ export const makeGameController = ({ queries }: AppContext): GameController => {
 
                     res.status(200).json({
                         message: 'Game updated successfully',
-                        game: updatedGame
+                        game: updatedGame,
                     });
 
                     return;

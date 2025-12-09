@@ -7,7 +7,8 @@ type Leaderboard = {
   createdAt: string;
 };
 
-type LeaderboardRow = {
+export type LeaderboardRow = {
+  id: number;
   user: string;
   total_stars: number;
 };

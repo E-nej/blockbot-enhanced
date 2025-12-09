@@ -6,6 +6,7 @@ import Game from './pages/Game';
 import LevelSelect from './pages/LevelSelect';
 import Leaderboards from './pages/Leaderboards';
 import Auth from './pages/Auth';
+import Challenge from './pages/Challenge';
 import { useAuth } from './hooks/useAuth';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -64,6 +65,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Leaderboards />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/quiz-challenge"
+              element={
+                <ProtectedRoute>
+                  <Challenge />
                 </ProtectedRoute>
               }
             />

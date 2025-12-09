@@ -4,28 +4,35 @@ import { Leaderboard, LevelsUsers, LeaderboardRow, User, UsersLeaderboard, Level
 import bcrypt from 'bcrypt'
 
 export interface Queries {
-  checkConnection(): Promise<boolean>;
-  addToLeaderbaord(user: number, leaderboard: number): Promise<void>;
-  getFinishedGames(user: number): Promise<Array<LevelOverview>>
-  getFinishedGame(user: number, level: number): Promise<LevelsUsers | null>
-  removeFromLeaderbaord(user: number): Promise<void>;
-  getLeaderboardData(leaderboard: number): Promise<Array<LeaderboardRow>>
-  getUserLeaderdboard(user: number): Promise<UsersLeaderboard | null>;
-  removeLeaderboard(id: number): Promise<void>;
-  createLeaderbaord(name: string, creator: number): Promise<Leaderboard>;
-  getLeaderboardById(id: number): Promise<Leaderboard | null>;
-  getLeaderboardByUser(creator: number): Promise<Leaderboard | null>;
-  createUser(username: string, email: string, password: string): Promise<User>;
-  getUserByUsername(username: string): Promise<User | null>;
-  getUserById(id: number): Promise<User | null>;
-  getUserCompletedGameById(userId: number, gameId: number): Promise<LevelsUsers | null>;
-  createCompletedGame(userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean): Promise<LevelsUsers | null>;
-  updateCompletedGame(userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean): Promise<LevelsUsers | null>;
-  getLevels(): Promise<Level[] | null>;
-  getLevel(levelId: number): Promise<Level | null>;
-  createLevel(name: string, description: string, level: string, pos: number, level_matrix: string[][], object_matrix: string[][], actions: string[]): Promise<Level>;
-  /*getAllPeople(): Promise<Person[]>;
-  addPerson(person: Person): Promise<Person>;*/
+    checkConnection(): Promise<boolean>;
+    addToLeaderbaord(user: number, leaderboard: number): Promise<void>;
+    getFinishedGames(user: number): Promise<Array<LevelOverview>>
+    getFinishedGame(user: number, level: number): Promise<LevelsUsers | null>
+    removeFromLeaderbaord(user: number): Promise<void>;
+    getLeaderboardData(leaderboard: number): Promise<Array<LeaderboardRow>>
+    getUserLeaderdboard(user: number): Promise<UsersLeaderboard | null>;
+    removeLeaderboard(id: number): Promise<void>;
+    createLeaderbaord(name: string, creator: number): Promise<Leaderboard>;
+    getLeaderboardById(id: number): Promise<Leaderboard | null>;
+    getLeaderboardByUser(creator: number): Promise<Leaderboard | null>;
+    createUser(username: string, email: string, password: string): Promise<User>;
+    getUserByUsername(username: string): Promise<User | null>;
+    getUserById(id: number): Promise<User | null>;
+    getUserCompletedGameById(userId: number, gameId: number): Promise<LevelsUsers | null>;
+    createCompletedGame(userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean): Promise<LevelsUsers | null>;
+    updateCompletedGame(userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean): Promise<LevelsUsers | null>;
+    getLevels(): Promise<Level[] | null>;
+    getLevel(levelId: number): Promise<Level | null>;
+    createLevel(name: string, description: string, level: string, pos: number, level_matrix: string[][], object_matrix: string[][], actions: string[]): Promise<Level>;
+    createChallenge(challenger_id: number, challengee_id: number): Promise<any>;
+    getUserChallenges(userId: number): Promise<any[]>;
+    getChallengeById(id: number): Promise<any>;
+    updateUserStars(userId: number, stars: number): Promise<User>;
+    updateChallengeCompleted(challengeId: number): Promise<any>;
+    getUserStars(userId: number): Promise<any>;
+    deductStarsFromLevels(userId: number, starsToDeduct: number): Promise<number>;
+    /*getAllPeople(): Promise<Person[]>;
+    addPerson(person: Person): Promise<Person>;*/
 }
 
 export const makeQueries = (databaseUrl: string): Queries => {
@@ -54,7 +61,7 @@ export const makeQueries = (databaseUrl: string): Queries => {
                 ORDER BY total_stars DESC`,
                 [leaderboard]
             );
-            
+
             return rows;
         },
 
@@ -99,13 +106,13 @@ export const makeQueries = (databaseUrl: string): Queries => {
                 `INSERT INTO "users_leaderboard" ("user", leaderboard)
                  VALUES ($1, $2)
                  RETURNING id, "user", leaderboard`,
-                 [user, leaderboard]
+                [user, leaderboard]
             );
 
             if (rowCount === 0) {
                 throw new HttpError(500, "Failed to add user to leaderboard");
             }
-        }, 
+        },
 
         removeFromLeaderbaord: async (user: number) => {
             const { rowCount } = await pool.query(
@@ -113,11 +120,11 @@ export const makeQueries = (databaseUrl: string): Queries => {
                 [user]
             );
 
-            if(rowCount === 0) {
+            if (rowCount === 0) {
                 throw new HttpError(404, "User not in any leaderbaords");
             }
         },
-  
+
         getUserLeaderdboard: async (user: number) => {
             const { rows, rowCount } = await pool.query<UsersLeaderboard>(
                 `SELECT id, "user", Leaderboard
@@ -135,7 +142,7 @@ export const makeQueries = (databaseUrl: string): Queries => {
                 [id]
             );
 
-            if(rowCount === 0) {
+            if (rowCount === 0) {
                 throw new HttpError(404, "Failed to delete specified leaderboard");
             }
         },
@@ -145,9 +152,9 @@ export const makeQueries = (databaseUrl: string): Queries => {
                 `SELECT id, name, creator, "createdAt"
                  FROM "leaderboard"
                  WHERE id = $1`,
-                [id] 
+                [id]
             );
-            
+
             return rows[0] || null;
         },
 
@@ -157,9 +164,9 @@ export const makeQueries = (databaseUrl: string): Queries => {
                  FROM "leaderboard"
                  WHERE creator = $1
                  LIMIT 1`,
-                [creator] 
+                [creator]
             );
-            
+
             return rows[0] || null;
         },
 
@@ -168,7 +175,7 @@ export const makeQueries = (databaseUrl: string): Queries => {
                 `INSERT INTO "leaderboard" (name, creator)
                  VALUES ($1, $2)
                  RETURNING id, name, creator, "createdAt"`,
-                 [name, creator]
+                [name, creator]
             );
 
             if (rowCount !== 1) {
@@ -220,15 +227,15 @@ export const makeQueries = (databaseUrl: string): Queries => {
                     `SELECT id, username, email, password, "createdAt"
                      FROM "user"
                      WHERE id = $1`,
-                    [id] 
+                    [id]
                 );
                 return rows[0] || null;
             }
-            catch(error) {
+            catch (error) {
                 throw error;
             }
         },
-        
+
         getUserCompletedGameById: async (userId: number, gameId: number) => {
             try {
                 const { rows } = await pool.query<LevelsUsers>(
@@ -236,14 +243,14 @@ export const makeQueries = (databaseUrl: string): Queries => {
                      FROM "levels_users" 
                      WHERE "user" = $1 
                      AND "level" = $2`,
-                     [userId, gameId]
+                    [userId, gameId]
                 );
-                
+
                 return rows[0] || null;
             } catch (error) {
                 throw error;
             }
-        }, 
+        },
 
         updateCompletedGame: async (userId: number, gameId: number, blocks_used: string, stars: number, completed: boolean) => {
             try {
@@ -257,7 +264,7 @@ export const makeQueries = (databaseUrl: string): Queries => {
                 );
 
                 return rows[0] || null
-            } catch(error) {
+            } catch (error) {
                 throw error;
             }
         },
@@ -268,11 +275,11 @@ export const makeQueries = (databaseUrl: string): Queries => {
                     `INSERT INTO "levels_users" ("user", "level", blocks_used, stars)
                      VALUES ($1, $2, $3, $4)
                      RETURNING *`,
-                     [userId, gameId, blocks_used, stars]
+                    [userId, gameId, blocks_used, stars]
                 );
 
                 return rows[0] || null
-            } catch(error) {
+            } catch (error) {
                 throw error;
             }
 
@@ -305,22 +312,117 @@ export const makeQueries = (databaseUrl: string): Queries => {
             }
         },
 
-        createLevel: async(name: string, description: string, level: string, pos: number, level_matrix: string[][], object_matrix: string[][], actions: string[]) => {
+        createLevel: async (name: string, description: string, level: string, pos: number, level_matrix: string[][], object_matrix: string[][], actions: string[]) => {
             try {
                 const { rows, rowCount } = await pool.query<Level>(
                     `INSERT INTO level (name, description, level, pos, level_matrix, object_matrix, actions)
                      VALUES ($1, $2, $3, $4, $5, $6, $7)
                      RETURNING id, name, description`,
-                     [name, description, level, pos, level_matrix, object_matrix, actions]
+                    [name, description, level, pos, level_matrix, object_matrix, actions]
                 );
 
                 if (rowCount !== 1) throw new HttpError(500, 'Internal server error');
 
                 return rows[0];
-            } catch(error) {
+            } catch (error) {
                 throw error;
             }
-        }
+        },
+        createChallenge: async (challenger_id: number, challengee_id: number) => {
+            const result = await pool.query(
+                `INSERT INTO challenges (challenger_id, challengee_id)
+                VALUES ($1, $2)
+                RETURNING id, challenger_id, challengee_id`,
+                [challenger_id, challengee_id]
+            );
+            return result.rows[0];
+        },
+
+        getUserChallenges: async (userId: number) => {
+            const result = await pool.query(
+                `SELECT c.*, 
+                    u1.username as challenger_username,
+                    u2.username as challengee_username
+             FROM challenges c
+             JOIN "user" u1 ON c.challenger_id = u1.id
+             JOIN "user" u2 ON c.challengee_id = u2.id
+             WHERE c.challenger_id = $1 OR c.challengee_id = $1`,
+                [userId]
+            );
+            return result.rows;
+        },
+
+        getChallengeById: async (id: number) => {
+            const result = await pool.query(
+                `SELECT c.*, 
+                    u1.username as challenger_username,
+                    u2.username as challengee_username
+             FROM challenges c
+             JOIN "user" u1 ON c.challenger_id = u1.id
+             JOIN "user" u2 ON c.challengee_id = u2.id
+             WHERE c.id = $1`,
+                [id]
+            );
+            return result.rows[0];
+        },
+
+        updateUserStars: async (userId: number, stars: number) => {
+            const result = await pool.query(
+                `UPDATE "users_leaderboard" 
+     SET total_stars = total_stars + $1
+     WHERE id = $2
+     RETURNING *`,
+                [stars, userId]
+            );
+            return result.rows[0];
+        },
+        updateChallengeCompleted: async (challengeId: number) => {
+            const result = await pool.query(
+                `UPDATE challenges
+     SET completed = true
+     WHERE id = $1
+     RETURNING *`,
+                [challengeId]
+            );
+            return result.rows[0];
+        },
+
+
+        getUserStars: async (userId: number) => {
+const { rows } = await pool.query(
+  `SELECT COALESCE(SUM(stars), 0) AS total_stars
+   FROM levels_users
+   WHERE "user" = $1`,
+  [userId]
+);
+const totalStarsNow = rows[0].total_stars;
+},
+
+
+deductStarsFromLevels: async (userId: number, starsToDeduct: number) => {
+  const userLevels = await pool.query(
+    `SELECT id, stars FROM levels_users WHERE "user" = $1 ORDER BY stars DESC`,
+    [userId]
+  );
+
+  let remainingToDeduct = starsToDeduct;
+  for (const level of userLevels.rows) {
+    if (remainingToDeduct <= 0) break;
+
+    const deduction = Math.min(level.stars, remainingToDeduct);
+    await pool.query(
+      `UPDATE levels_users SET stars = stars - $1 WHERE id = $2`,
+      [deduction, level.id]
+    );
+    remainingToDeduct -= deduction;
+  }
+
+  return starsToDeduct - remainingToDeduct; 
+}
+
+
+
+
     };
 }
 
