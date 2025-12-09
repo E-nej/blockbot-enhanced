@@ -268,19 +268,24 @@ export async function executeActions(
   actions: GameAction[],
   onStateUpdate?: (state: GameState) => void,
   startTime: number = Date.now(),
+  delay: number = 500,
 ): Promise<GameState> {
   let state = initializeGameState(level);
 
   if (onStateUpdate) onStateUpdate(state);
+  const actionStartTime = Date.now();
 
   for (const action of actions) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const beforeDelay = Date.now();
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    const afterDelay = Date.now();
+    console.log('Actual delay:', afterDelay - beforeDelay, 'ms');
 
     if (typeof action === 'object' && action.type === 'loop') {
       const loopAction = action as LoopAction;
       for (let i = 0; i < loopAction.iterations; i++) {
         for (const loopedAction of loopAction.actions) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           state = executeAction(state, loopedAction as Action, level);
           if (onStateUpdate) onStateUpdate(state);
           if (state.isComplete || state.isFailed) break;
@@ -296,6 +301,9 @@ export async function executeActions(
       break;
     }
   }
+
+  const totalTime = Date.now() - actionStartTime;
+  console.log('Total execution time:', totalTime, 'ms for ', actions.length, 'actions');
 
   if (!state.isComplete) {
     state.isFailed = true;

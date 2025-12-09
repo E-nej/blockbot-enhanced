@@ -29,6 +29,7 @@ export function GamePlay({
   const rotationRef = useRef(90);
   const lastDirectionRef = useRef<Direction>('right');
   const { completeGame } = useGameCompletion();
+  const [executionSpeed, setExecutionSpeed] = useState(1);
 
   const MAX_ACTIONS = 20;
 
@@ -43,17 +44,20 @@ export function GamePlay({
 
   const handleExecute = async () => {
     setIsExecuting(true);
+    const delay = 1000 / executionSpeed;
+    console.log('Execution speed:', executionSpeed, 'Delay:', delay);
+
     const finalState = await executeActions(level, actions, (state) => {
       setResult({ ...state });
-    });
+    }, Date.now(), delay);
     setIsExecuting(false);
 
     if (finalState.isFailed) {
       setIsDead(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, delay));
       setIsDead(false);
 
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, delay));
       setResult(null);
       rotationRef.current = 90;
       lastDirectionRef.current = 'right';
@@ -135,6 +139,8 @@ export function GamePlay({
             onReset={handleReset}
             isExecuting={isExecuting}
             hasActions={actions.length > 0}
+            speed={executionSpeed}
+            onSpeedChange={setExecutionSpeed}
           />
 
           {result && (
