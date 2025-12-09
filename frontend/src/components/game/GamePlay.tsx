@@ -76,6 +76,43 @@ export function GamePlay({
       rotationRef.current = 90;
       lastDirectionRef.current = 'right';
     } else if (finalState.isComplete) {
+      const confetti = () => {
+        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'];
+        for (let i = 0; i < 50; i++) {
+          const particle = document.createElement('div');
+          particle.style.position = 'fixed';
+          particle.style.left = '50%';
+          particle.style.top = '20%';
+          particle.style.width = '10px';
+          particle.style.height = '10px';
+          particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          particle.style.borderRadius = '50%';
+          particle.style.pointerEvents = 'none';
+          particle.style.zIndex = '9999';
+          document.body.appendChild(particle);
+
+          const angle = Math.random() * Math.PI * 2;
+          const velocity = 5 + Math.random() * 10;
+          let x = 0,
+            y = 0,
+            vy = -velocity;
+
+          const gravity = 0.2;
+
+          const animate = () => {
+            x += Math.cos(angle) * velocity * 0.8;
+            y += vy;
+            vy += gravity;
+            particle.style.transform = `translate(${x}px, ${y}px)`;
+            particle.style.opacity = String(1 - y / 900);
+            if (y < 800) requestAnimationFrame(animate);
+            else particle.remove();
+          };
+          animate();
+        }
+      };
+      confetti();
+
       const actionsUsed = calculateActionsUsed(actions);
       const stars = MAX_ACTIONS - actionsUsed;
 
