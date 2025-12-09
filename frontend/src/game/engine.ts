@@ -1,3 +1,4 @@
+import { soundManager } from '@/utils/sound';
 import type {
   Level,
   GameState,
@@ -117,6 +118,7 @@ function moveForward(
       moveLog: [...state.moveLog, 'Invalid move - FAILED!'],
     };
   }
+  soundManager.play('move');
 
   const obj = state.objectsMatrix[newPos.y][newPos.x];
   const pickedUpKey = obj === 'key';
@@ -134,8 +136,14 @@ function moveForward(
     ...state.moveLog,
     `Moved forward to (${newPos.x}, ${newPos.y})`,
   ];
-  if (pickedUpKey) moveLog.push('Picked up key');
-  if (reachedFinish) moveLog.push('Reached finish! Level complete!');
+  if (pickedUpKey) {
+    moveLog.push('Picked up key');
+    soundManager.play('pickup');
+  } 
+  if (reachedFinish) {
+    moveLog.push('Reached finish! Level complete!');
+    soundManager.play('win');
+  } 
 
   return {
     ...state,
@@ -149,6 +157,7 @@ function moveForward(
 }
 
 function turnLeft(state: GameState): GameState {
+  soundManager.play('turn')
   return {
     ...state,
     playerDirection: TURN_LEFT[state.playerDirection],
@@ -160,6 +169,7 @@ function turnLeft(state: GameState): GameState {
 }
 
 function turnRight(state: GameState): GameState {
+  soundManager.play('turn')
   return {
     ...state,
     playerDirection: TURN_RIGHT[state.playerDirection],
@@ -171,6 +181,7 @@ function turnRight(state: GameState): GameState {
 }
 
 function jump(state: GameState, level: Level): GameState {
+  soundManager.play('jump');
   const stateWithLog = {
     ...state,
     moveLog: [...state.moveLog, 'Jumping...'],
@@ -205,6 +216,7 @@ function performUseAction(state: GameState): GameState {
     if (state.inventory.includes('key')) {
       const objectsMatrix = state.objectsMatrix.map((row) => [...row]);
       objectsMatrix[targetPos.y][targetPos.x] = null;
+      soundManager.play('unlock');
 
       return {
         ...state,
@@ -287,6 +299,7 @@ export async function executeActions(
 
   if (!state.isComplete) {
     state.isFailed = true;
+    soundManager.play('fail');
     state.moveLog = [...state.moveLog, 'Failed to reach finish'];
   }
 
