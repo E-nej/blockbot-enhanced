@@ -63,20 +63,19 @@ const actionTooltips: Record<Action, string> = {
 function ActionBlock({ action, isDragging, isDisplay = true }: ActionBlockProps) {
   return (
     <div
-      className={`relative flex items-center justify-center ${isDragging ? 'opacity-50' : ''}`}
+      className={`${isDragging ? 'opacity-50' : ''}`}
+      style={{ marginLeft: '30px' }}
     >
-      {/* <img
-        src={actionAssets[action]}
-        alt={actionLabels[action]}
-        className="h-16 w-16"
-      /> */}
-      {/* <BlockIcon key={action} code={{ type: 'action', label: actionLabels[action] }} /> */}
       {
         isDisplay ?
           (
             <BlockIcon key={action} code={actionLabels[action]} />
           ) : (
-            <p>{actionLabels[action]}</p>
+            <pre>
+              <code>
+                {actionLabels[action]}
+              </code>
+            </pre>
           )
       }
     </div>
@@ -114,7 +113,7 @@ function LoopBlock({
 
   return (
     <div
-      className={`flex items-center gap-2 p-2 ${isDragging ? 'opacity-50' : ''}`}
+      className={`flex items-center gap-0 p-2 -ml-5 ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="flex h-full flex-shrink-0 flex-col items-center justify-center gap-0.5 px-2">
         <button
@@ -123,14 +122,16 @@ function LoopBlock({
           type="button"
         >
           ▲
+          {/* + */}
         </button>
-        <span className="text-sm font-semibold">{loopAction.iterations}x</span>
+        <pre><code>{loopAction.iterations}x</code></pre>
         <button
           onClick={handleDecrement}
           className="flex h-4 w-4 items-center justify-center text-gray-600 hover:text-gray-900"
           type="button"
         >
           ▼
+          {/* - */}
         </button>
       </div>
       <SortableContext
@@ -144,7 +145,12 @@ function LoopBlock({
           className="flex h-full flex-1 flex-col gap-2 px-2"
         >
           <div>
-            repeat ({loopAction.iterations})
+            <pre>
+              <code>
+                repeat ({loopAction.iterations})
+              </code>
+            </pre>
+
           </div>
           {loopAction.actions.length === 0 ? (
             <span className="text-sm text-gray-400">Vstavi akcijo</span>
@@ -161,7 +167,11 @@ function LoopBlock({
             )
           )}
           <div>
-            end
+            <pre>
+              <code>
+                end
+              </code>
+            </pre>
           </div>
         </div>
       </SortableContext>
@@ -191,18 +201,17 @@ function NestedAction({ action, id, onRemove }: NestedActionProps) {
       style={{ transform: CSS.Transform.toString(transform), transition }}
       {...attributes}
       {...listeners}
-      className="group relative"
+      className="group relative inline-block"
     >
       <div
-        className={`relative flex items-center justify-center ${isDragging ? 'opacity-50' : ''}`}
+        className={`${isDragging ? 'opacity-50' : ''}`}
+        style={{ marginLeft: '30px' }}
       >
-        {/* <img
-          src={actionAssets[action]}
-          alt={actionLabels[action]}
-          className="h-12 w-12"
-        /> */}
-        {/* <BlockIcon key={action} code={actionLabels[action]} /> */}
-        <p>{actionLabels[action]}</p>
+        <pre>
+          <code>
+            {actionLabels[action]}
+          </code>
+        </pre>
 
       </div>
       <button
@@ -256,25 +265,25 @@ function SortableAction({
       style={style}
       {...attributes}
       {...listeners}
-      className="group relative"
+      className="group relative inline-block"
     >
       {isLoop ? (
-        <LoopBlock
-          loopAction={action}
-          isDragging={isDragging}
-          loopId={id}
-          onNestedRemove={onNestedRemove || (() => { })}
-          onIterationsChange={onIterationsChange || (() => { })}
-        />
+      <LoopBlock
+        loopAction={action}
+        isDragging={isDragging}
+        loopId={id}
+        onNestedRemove={onNestedRemove || (() => { })}
+        onIterationsChange={onIterationsChange || (() => { })}
+      />
       ) : (
-        <ActionBlock action={action as Action} isDragging={isDragging} isDisplay={false} />
+      <ActionBlock action={action as Action} isDragging={isDragging} isDisplay={false} />
       )}
       <button
         onClick={(e) => {
           e.stopPropagation();
           onRemove();
         }}
-        className={`absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 ${isLoop ? 'z-10' : ''}`}
+        className={`absolute -top-2 -right-6 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 ${isLoop ? 'z-10' : ''}`}
         type="button"
       >
         ✕
@@ -543,7 +552,7 @@ export function ActionBuilder({
       </div>
 
       <DragOverlay>
-        {getActiveAction() && <ActionBlock action={getActiveAction()!} />}
+        {getActiveAction() && <ActionBlock action={getActiveAction()!}/>}
       </DragOverlay>
     </DndContext>
   );
@@ -580,11 +589,12 @@ function ActionsDropZone({
 
   return (
     <div className="flex h-full flex-row">
-      <div className="w-1/2 mb-4 flex justify-center items-start">
+      <div className="w-1/2 h-auto max-h-90 flex justify-center items-start overflow-y-auto">
         {actions.length > 0 && (
           <BlockIcon code={buildScratchCode(actions)} />
         )}
       </div>
+
 
       <SortableContext
         items={actions.map((_, index) => `action-${index}`)}
@@ -592,28 +602,30 @@ function ActionsDropZone({
       >
         <div
           ref={setNodeRef}
-          className="w-1/2 flex flex-col content-center items-center justify-center gap-2 overflow-y-auto p-4 bg-white rounded-xl border border-gray-300"
+          className="w-1/2 h-auto max-h-90 text-start gap-2 p-1 bg-gray-50 rounded-xl"
         >
-          {actions.length === 0 ? (
-            <p className="text-xl font-semibold text-white">
-              Povleci ukaze sem
-            </p>
-          ) : (
-            actions.map((action, index) => (
-              <SortableAction
-                key={`action-${index}`}
-                id={`action-${index}`}
-                action={action}
-                onRemove={() => onRemove(index)}
-                onNestedRemove={(nestedIndex) =>
-                  onNestedRemove(index, nestedIndex)
-                }
-                onIterationsChange={(newIterations) =>
-                  onIterationsChange(index, newIterations)
-                }
-              />
-            ))
-          )}
+          <div className="h-full w-full flex flex-col p-2 rounded-lg bg-gray-800 text-gray-100 font-mono overflow-y-auto">
+            {actions.length === 0 ? (
+              <p className="text-xl font-semibold">
+                Povleci ukaze sem...
+              </p>
+            ) : (
+              actions.map((action, index) => (
+                <SortableAction
+                  key={`action-${index}`}
+                  id={`action-${index}`}
+                  action={action}
+                  onRemove={() => onRemove(index)}
+                  onNestedRemove={(nestedIndex) =>
+                    onNestedRemove(index, nestedIndex)
+                  }
+                  onIterationsChange={(newIterations) =>
+                    onIterationsChange(index, newIterations)
+                  }
+                />
+              ))
+            )}
+          </div>
         </div>
       </SortableContext>
 
