@@ -81,8 +81,8 @@ export const makeChallengeController = ({ queries }: AppContext): ChallengeContr
                 const challengeId = Number(req.params.id);
                 const { stars, score, totalQuestions } = req.body;
 
-                if (!challengeId || stars === undefined) {
-                    return next(new HttpError(400, "Missing challengeId or stars"));
+                if (!challengeId || stars === undefined || score === undefined) {
+                    return next(new HttpError(400, "Missing challengeId, stars or score"));
                 }
 
                 const challenge = await queries.getChallengeById(challengeId);
@@ -94,28 +94,28 @@ export const makeChallengeController = ({ queries }: AppContext): ChallengeContr
                 const challengerId = challenge.challenger_id;
                 const challengeeId = challenge.challengee_id;
 
-                let userIdDet: number;
+                let loserUserId: number;
+                let starsToDeduct: number;
 
-                console.log("Challenger id", challengerId, "challengee id", challengeeId);
-
-
-                if (score >= Math.ceil(totalQuestions / 2)) {
-                    userIdDet = challengerId;
+                if (score === 0) {
+                    loserUserId = challengeeId;
+                    starsToDeduct = 3;
                 } else {
-                    userIdDet = challengeeId;
+                    loserUserId = challengerId;
+                    starsToDeduct = stars; 
                 }
-                const starsDeducted = await queries.deductStarsFromLevels(userIdDet, stars);
 
+                const starsDeducted = await queries.deductStarsFromLevels(loserUserId, starsToDeduct);
 
-                const userStats = await queries.getUserStars(userIdDet);
+                const userStats = await queries.getUserStars(loserUserId);
                 const totalStarsNow = userStats?.total_stars ?? 0;
                 const data = await queries.getLeaderboardData(1);
 
                 res.status(200).json({
                     success: true,
-                    message: "Challenge completed, stars deducted",
+                    message: "Challenge completed",
+                    loser_user_id: loserUserId,
                     stars_deducted: starsDeducted,
-                    deducted_from_user_id: userIdDet,
                     total_stars: totalStarsNow,
                     leaderboard: data
                 });
