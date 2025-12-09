@@ -33,15 +33,6 @@ interface ActionBlockProps {
   isDisplay?: boolean;
 }
 
-const actionAssets: Record<Action, string> = {
-  forward: '/game_assets/actions/forward.svg',
-  turnLeft: '/game_assets/actions/turn-left.svg',
-  turnRight: '/game_assets/actions/turn-right.svg',
-  jump: '/game_assets/actions/jump.svg',
-  use: '/game_assets/actions/use.svg',
-  loop: '/game_assets/actions/loop.svg',
-};
-
 const actionLabels: Record<Action, string> = {
   forward: 'move (1) steps',
   turnLeft: 'turn left (90) degrees',
