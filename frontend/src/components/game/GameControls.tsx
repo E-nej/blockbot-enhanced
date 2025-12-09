@@ -4,8 +4,10 @@ import { HiChevronRight, HiRefresh } from 'react-icons/hi';
 interface GameControlsProps {
   onExecute: () => void;
   onReset: () => void;
+  onUndo: () => void;
   isExecuting: boolean;
   hasActions: boolean;
+  canUndo: boolean;
   speed: number;
   onSpeedChange: (speed: number) => void;
 }
@@ -13,8 +15,10 @@ interface GameControlsProps {
 export function GameControls({
   onExecute,
   onReset,
+  onUndo,
   isExecuting,
   hasActions,
+  canUndo,
   speed,
   onSpeedChange,
 }: GameControlsProps) {
@@ -40,6 +44,16 @@ export function GameControls({
       </div>
       
     <div className="flex w-full justify-center gap-4">
+      <Button
+        onClick={onUndo}
+        outline
+        className="border-2 border-yellow-500 bg-transparent text-yellow-500 hover:bg-yellow-500/10"
+        disabled={!canUndo || isExecuting}
+      >
+        <HiRefresh className="mr-2 h-5 w-5 rotate-180" />
+        Razveljavi
+      </Button>
+
       <Button
         onClick={onExecute}
         outline

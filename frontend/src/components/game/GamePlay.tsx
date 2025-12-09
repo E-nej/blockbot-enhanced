@@ -30,6 +30,7 @@ export function GamePlay({
   const lastDirectionRef = useRef<Direction>('right');
   const { completeGame } = useGameCompletion();
   const [executionSpeed, setExecutionSpeed] = useState(1);
+  const [actionHistory, setActionHistory] = useState<GameAction[][]>([]);
 
   const MAX_ACTIONS = 20;
 
@@ -41,6 +42,19 @@ export function GamePlay({
       return total + 1;
     }, 0);
   };
+
+  const handleActionsChange = (newActions: GameAction[]) => {
+    setActionHistory([...actionHistory, actions]);
+    setActions(newActions);
+  }
+
+  const handleUndo = () => {
+    if (actionHistory.length > 0) {
+      const previousActions = actionHistory[actionHistory.length - 1];
+      setActions(previousActions);
+      setActionHistory(actionHistory.slice(0, -1));
+    }
+  }
 
   const handleExecute = async () => {
     setIsExecuting(true);
@@ -128,7 +142,7 @@ export function GamePlay({
                 <ActionBuilder
                   availableActions={level.actions}
                   actions={actions}
-                  onActionsChange={setActions}
+                  onActionsChange={handleActionsChange}
                 />
               </div>
             </div>
@@ -137,8 +151,10 @@ export function GamePlay({
           <GameControls
             onExecute={handleExecute}
             onReset={handleReset}
+            onUndo={handleUndo}
             isExecuting={isExecuting}
             hasActions={actions.length > 0}
+            canUndo={actionHistory.length > 0}
             speed={executionSpeed}
             onSpeedChange={setExecutionSpeed}
           />
