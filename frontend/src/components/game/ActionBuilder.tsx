@@ -114,13 +114,8 @@ function LoopBlock({
 
   return (
     <div
-      className={`flex h-16 items-center gap-2 rounded-lg bg-[#edf0f3] p-2 ${isDragging ? 'opacity-50' : ''}`}
+      className={`flex items-center gap-2 p-2 ${isDragging ? 'opacity-50' : ''}`}
     >
-      <div className="flex h-full flex-shrink-0 items-center justify-center">
-        {/* <BlockIcon key="loop" code={actionLabels.loop} /> */}
-        {/* <img src={actionAssets.loop} alt="Loop" className="h-12 w-12" /> */}
-      </div>
-
       <div className="flex h-full flex-shrink-0 flex-col items-center justify-center gap-0.5 px-2">
         <button
           onClick={handleIncrement}
@@ -138,7 +133,6 @@ function LoopBlock({
           ▼
         </button>
       </div>
-
       <SortableContext
         items={loopAction.actions.map(
           (_, index) => `${loopId}-nested-${index}`,
@@ -147,8 +141,11 @@ function LoopBlock({
       >
         <div
           ref={setDropRef}
-          className="flex h-full flex-1 flex-wrap items-center gap-2 px-2"
+          className="flex h-full flex-1 flex-col gap-2 px-2"
         >
+          <div>
+            repeat ({loopAction.iterations})
+          </div>
           {loopAction.actions.length === 0 ? (
             <span className="text-sm text-gray-400">Vstavi akcijo</span>
           ) : (
@@ -163,6 +160,9 @@ function LoopBlock({
               ) : null,
             )
           )}
+          <div>
+            end
+          </div>
         </div>
       </SortableContext>
     </div>
@@ -201,7 +201,8 @@ function NestedAction({ action, id, onRemove }: NestedActionProps) {
           alt={actionLabels[action]}
           className="h-12 w-12"
         /> */}
-        <BlockIcon key={action} code={actionLabels[action]} />
+        {/* <BlockIcon key={action} code={actionLabels[action]} /> */}
+        <p>{actionLabels[action]}</p>
 
       </div>
       <button
@@ -578,21 +579,20 @@ function ActionsDropZone({
   const { setNodeRef } = useDroppable({ id: 'actions-dropzone' });
 
   return (
-    <div className="flex h-full flex-col">
-      {
-        actions.length > 0 && (
-          <div className='mb-4 w-full'>
-            <BlockIcon code={buildScratchCode(actions)} />
-          </div>
-        )
-      }
+    <div className="flex h-full flex-row">
+      <div className="w-1/2 mb-4 flex justify-center items-start">
+        {actions.length > 0 && (
+          <BlockIcon code={buildScratchCode(actions)} />
+        )}
+      </div>
+
       <SortableContext
         items={actions.map((_, index) => `action-${index}`)}
         strategy={rectSortingStrategy}
       >
         <div
           ref={setNodeRef}
-          className="flex flex-1 flex-wrap content-center items-center justify-center gap-2 overflow-y-auto p-4"
+          className="w-1/2 flex flex-col content-center items-center justify-center gap-2 overflow-y-auto p-4 bg-white rounded-xl border border-gray-300"
         >
           {actions.length === 0 ? (
             <p className="text-xl font-semibold text-white">
@@ -616,6 +616,8 @@ function ActionsDropZone({
           )}
         </div>
       </SortableContext>
+
     </div>
   );
+
 }
