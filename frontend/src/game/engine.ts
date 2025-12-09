@@ -1,3 +1,4 @@
+import { soundManager } from '@/utils/sound';
 import type {
   Level,
   GameState,
@@ -117,6 +118,7 @@ function moveForward(
       moveLog: [...state.moveLog, 'Invalid move - FAILED!'],
     };
   }
+  soundManager.play('move');
 
   const obj = state.objectsMatrix[newPos.y][newPos.x];
   const pickedUpKey = obj === 'key';
@@ -134,8 +136,14 @@ function moveForward(
     ...state.moveLog,
     `Moved forward to (${newPos.x}, ${newPos.y})`,
   ];
-  if (pickedUpKey) moveLog.push('Picked up key');
-  if (reachedFinish) moveLog.push('Reached finish! Level complete!');
+  if (pickedUpKey) {
+    moveLog.push('Picked up key');
+    soundManager.play('pickup');
+  } 
+  if (reachedFinish) {
+    moveLog.push('Reached finish! Level complete!');
+    soundManager.play('win');
+  } 
 
   return {
     ...state,
@@ -149,6 +157,7 @@ function moveForward(
 }
 
 function turnLeft(state: GameState): GameState {
+  soundManager.play('turn')
   return {
     ...state,
     playerDirection: TURN_LEFT[state.playerDirection],
@@ -160,6 +169,7 @@ function turnLeft(state: GameState): GameState {
 }
 
 function turnRight(state: GameState): GameState {
+  soundManager.play('turn')
   return {
     ...state,
     playerDirection: TURN_RIGHT[state.playerDirection],
@@ -171,6 +181,7 @@ function turnRight(state: GameState): GameState {
 }
 
 function jump(state: GameState, level: Level): GameState {
+  soundManager.play('jump');
   const stateWithLog = {
     ...state,
     moveLog: [...state.moveLog, 'Jumping...'],
@@ -205,6 +216,7 @@ function performUseAction(state: GameState): GameState {
     if (state.inventory.includes('key')) {
       const objectsMatrix = state.objectsMatrix.map((row) => [...row]);
       objectsMatrix[targetPos.y][targetPos.x] = null;
+      soundManager.play('unlock');
 
       return {
         ...state,
@@ -256,19 +268,24 @@ export async function executeActions(
   actions: GameAction[],
   onStateUpdate?: (state: GameState) => void,
   startTime: number = Date.now(),
+  delay: number = 500,
 ): Promise<GameState> {
   let state = initializeGameState(level);
 
   if (onStateUpdate) onStateUpdate(state);
+  const actionStartTime = Date.now();
 
   for (const action of actions) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const beforeDelay = Date.now();
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    const afterDelay = Date.now();
+    console.log('Actual delay:', afterDelay - beforeDelay, 'ms');
 
     if (typeof action === 'object' && action.type === 'loop') {
       const loopAction = action as LoopAction;
       for (let i = 0; i < loopAction.iterations; i++) {
         for (const loopedAction of loopAction.actions) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           state = executeAction(state, loopedAction as Action, level);
           if (onStateUpdate) onStateUpdate(state);
           if (state.isComplete || state.isFailed) break;
@@ -285,8 +302,12 @@ export async function executeActions(
     }
   }
 
+  const totalTime = Date.now() - actionStartTime;
+  console.log('Total execution time:', totalTime, 'ms for ', actions.length, 'actions');
+
   if (!state.isComplete) {
     state.isFailed = true;
+    soundManager.play('fail');
     state.moveLog = [...state.moveLog, 'Failed to reach finish'];
   }
 
