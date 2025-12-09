@@ -73,62 +73,58 @@ export const makeChallengeController = ({ queries }: AppContext): ChallengeContr
                 next(new HttpError(500, error.message));
             }
         },
+
         finishChallenge: async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    if (!req.userId) return next(new HttpError(401, "Unauthorized"));
+            try {
+                if (!req.userId) return next(new HttpError(401, "Unauthorized"));
 
-    const challengeId = Number(req.params.id);
-    const { stars } = req.body;
+                const challengeId = Number(req.params.id);
+                const { stars, score, totalQuestions } = req.body;
 
-    if (!challengeId || stars === undefined) {
-      return next(new HttpError(400, "Missing challengeId or stars"));
-    }
+                if (!challengeId || stars === undefined) {
+                    return next(new HttpError(400, "Missing challengeId or stars"));
+                }
 
-    console.log("====== FINISH CHALLENGE DEBUG ======");
-    console.log("Challenge ID:", challengeId);
-    console.log("Stars to deduct:", stars);
+                const challenge = await queries.getChallengeById(challengeId);
+                if (!challenge) {
+                    console.log("Challenge NOT found.");
+                    return next(new HttpError(404, "Challenge not found"));
+                }
 
-    const challenge = await queries.getChallengeById(challengeId);
-    if (!challenge) {
-      console.log("Challenge NOT found.");
-      return next(new HttpError(404, "Challenge not found"));
-    }
+                const challengerId = challenge.challenger_id;
+                const challengeeId = challenge.challengee_id;
 
-    const userId = challenge.challengee_id;
-    console.log("User who will lose stars (challengee_id):", userId);
+                let userIdDet: number;
 
-    // Deduct stars across levels using your queries helper
-    const starsDeducted = await queries.deductStarsFromLevels(userId, stars);
+                console.log("Challenger id", challengerId, "challengee id", challengeeId);
 
 
-            const userStats = await queries.getUserStars(userId);
-        const totalStarsNow = userStats?.total_stars ?? 0;
-    // Optionally, posodobi status izziva (npr. accepted/finished)
-    // await queries.updateChallengeStatus(challengeId, 'finished');
-
-    const data = await queries.getLeaderboardData(1);
-    console.log("Leaderboard data after deduction:", data);
-
-        console.log("====== USER STARS DEBUG ======");
-        console.log("User ID:", userId);
-        console.log("Stars deducted:", starsDeducted);
-        console.log("Total stars now:", totalStarsNow);
-        console.log("================================");
-
-    res.status(200).json({
-      success: true,
-      message: "Challenge completed, stars deducted",
-      data
-    });
-
-  } catch (err: any) {
-    console.log("ERROR in finishChallenge:", err);
-    next(new HttpError(500, err.message));
-  }
-}
+                if (score >= Math.ceil(totalQuestions / 2)) {
+                    userIdDet = challengerId;
+                } else {
+                    userIdDet = challengeeId;
+                }
+                const starsDeducted = await queries.deductStarsFromLevels(userIdDet, stars);
 
 
+                const userStats = await queries.getUserStars(userIdDet);
+                const totalStarsNow = userStats?.total_stars ?? 0;
+                const data = await queries.getLeaderboardData(1);
 
+                res.status(200).json({
+                    success: true,
+                    message: "Challenge completed, stars deducted",
+                    stars_deducted: starsDeducted,
+                    deducted_from_user_id: userIdDet,
+                    total_stars: totalStarsNow,
+                    leaderboard: data
+                });
+
+            } catch (err: any) {
+                console.log("ERROR in finishChallenge:", err);
+                next(new HttpError(500, err.message));
+            }
+        }
 
     };
 };

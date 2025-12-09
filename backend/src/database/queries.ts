@@ -31,6 +31,7 @@ export interface Queries {
     updateChallengeCompleted(challengeId: number): Promise<any>;
     getUserStars(userId: number): Promise<any>;
     deductStarsFromLevels(userId: number, starsToDeduct: number): Promise<number>;
+    saveChallengeResults(challengeId: number, score: number, selected_answers: any, stars_won: number): Promise<any>;
     /*getAllPeople(): Promise<Person[]>;
     addPerson(person: Person): Promise<Person>;*/
 }
@@ -369,9 +370,9 @@ export const makeQueries = (databaseUrl: string): Queries => {
         updateUserStars: async (userId: number, stars: number) => {
             const result = await pool.query(
                 `UPDATE "users_leaderboard" 
-     SET total_stars = total_stars + $1
-     WHERE id = $2
-     RETURNING *`,
+                SET total_stars = total_stars + $1
+                WHERE id = $2
+                RETURNING *`,
                 [stars, userId]
             );
             return result.rows[0];
@@ -379,9 +380,9 @@ export const makeQueries = (databaseUrl: string): Queries => {
         updateChallengeCompleted: async (challengeId: number) => {
             const result = await pool.query(
                 `UPDATE challenges
-     SET completed = true
-     WHERE id = $1
-     RETURNING *`,
+                SET completed = true
+                WHERE id = $1
+                RETURNING *`,
                 [challengeId]
             );
             return result.rows[0];
@@ -389,36 +390,60 @@ export const makeQueries = (databaseUrl: string): Queries => {
 
 
         getUserStars: async (userId: number) => {
-const { rows } = await pool.query(
-  `SELECT COALESCE(SUM(stars), 0) AS total_stars
-   FROM levels_users
-   WHERE "user" = $1`,
-  [userId]
-);
-const totalStarsNow = rows[0].total_stars;
-},
+            const { rows } = await pool.query(
+                `SELECT COALESCE(SUM(stars), 0) AS total_stars
+            FROM levels_users
+            WHERE "user" = $1`,
+                [userId]
+            );
+            const totalStarsNow = rows[0].total_stars;
+        },
+
+        deductStarsFromLevels: async (userId: number, starsChange: number) => {
+            if (starsChange === 0) return 0;
+
+            const userLevels = await pool.query(
+                `SELECT id, stars FROM levels_users WHERE "user" = $1 ORDER BY stars DESC`,
+                [userId]
+            );
+
+            let remainingChange = Math.abs(starsChange);
+
+            if (starsChange > 0) {
+                for (const level of userLevels.rows) {
+                    if (remainingChange <= 0) break;
+                    const deduction = Math.min(level.stars, remainingChange);
+                    await pool.query(`UPDATE levels_users SET stars = stars - $1 WHERE id = $2`, [deduction, level.id]);
+                    remainingChange -= deduction;
+                }
+                return starsChange - remainingChange;
+            } else {
+                for (const level of userLevels.rows) {
+                    await pool.query(`UPDATE levels_users SET stars = stars + $1 WHERE id = $2`, [remainingChange, level.id]);
+                    break; 
+                }
+                return starsChange;
+            }
+        },
 
 
-deductStarsFromLevels: async (userId: number, starsToDeduct: number) => {
-  const userLevels = await pool.query(
-    `SELECT id, stars FROM levels_users WHERE "user" = $1 ORDER BY stars DESC`,
-    [userId]
-  );
-
-  let remainingToDeduct = starsToDeduct;
-  for (const level of userLevels.rows) {
-    if (remainingToDeduct <= 0) break;
-
-    const deduction = Math.min(level.stars, remainingToDeduct);
-    await pool.query(
-      `UPDATE levels_users SET stars = stars - $1 WHERE id = $2`,
-      [deduction, level.id]
-    );
-    remainingToDeduct -= deduction;
-  }
-
-  return starsToDeduct - remainingToDeduct; 
-}
+        saveChallengeResults: async (challengeId: number, score: number, selected_answers: any, stars_won: number) => {
+            try {
+                const result = await pool.query(
+                    `INSERT INTO challenge_results 
+             (challenge_id, score, selected_answers, stars_won, created_at)
+             VALUES ($1, $2, $3, $4, NOW())
+             ON CONFLICT (challenge_id) DO UPDATE
+             SET score = $2, selected_answers = $3, stars_won = $4, updated_at = NOW()
+             RETURNING *`,
+                    [challengeId, score, JSON.stringify(selected_answers || []), stars_won]
+                );
+                return result.rows[0];
+            } catch (error) {
+                console.error("Error saving challenge results:", error);
+                throw error;
+            }
+        }
 
 
 

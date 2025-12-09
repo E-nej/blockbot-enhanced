@@ -7,7 +7,6 @@ export type Challenge = {
   challengee_id: number;
   challenger_username: string;
   challengee_username: string;
-  // status: 'pending' | 'accepted' | 'finished';
   accepted: boolean;
 };
 

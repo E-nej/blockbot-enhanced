@@ -1,7 +1,7 @@
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import { FaStar } from 'react-icons/fa';
 import { useUserChallenge, type Challenge } from '../hooks/useChallenge';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Table,
@@ -14,6 +14,8 @@ import {
 } from 'flowbite-react';
 import { useAuth } from '@/hooks/useAuth';
 import { type LeaderboardRow } from '@/hooks/useLeaderboard';
+import QuizChallenge from './Quiz';
+
 export default function Leaderboards() {
   const { leaderboardRows, isLoadingRows, rowsError, refetch: refetchLeaderboard } = useLeaderboard();
   const { user } = useAuth();
@@ -59,25 +61,25 @@ export default function Leaderboards() {
   };
 
 
-useEffect(() => {
+  useEffect(() => {
     console.log("challenges:", challenges);
-  console.log("userName:", userName);
-  console.log("handledChallenges:", handledChallenges);
-  if (!userName || !challenges) return;
+    console.log("userName:", userName);
+    console.log("handledChallenges:", handledChallenges);
+    if (!userName || !challenges) return;
 
-  const pending = challenges.find(
-    c =>
-      c.challengee_username === userName &&  
-      !c.accepted &&                         
-      !handledChallenges.has(c.id)           
-  );
+    const pending = challenges.find(
+      c =>
+        c.challengee_username === userName &&
+        !c.accepted &&
+        !handledChallenges.has(c.id)
+    );
 
-  setActiveChallenge(pending || null);
-  setShowChallengeModal(!!pending);
-}, [challenges, userName, handledChallenges]);
+    setActiveChallenge(pending || null);
+    setShowChallengeModal(!!pending);
+  }, [challenges, userName, handledChallenges]);
 
 
-   useEffect(() => {
+  useEffect(() => {
     if (leaderboardRows && leaderboardRows.length > 0) {
       setUpdatedLeaderboard(
         [...leaderboardRows].sort((a, b) => b.total_stars - a.total_stars)
@@ -96,10 +98,11 @@ useEffect(() => {
     setShowQuiz(true);
   };
 
-  const handleFinishQuiz = async () => {
+  const handleFinishQuiz = async (score: number, selectedAnswers: number[]) => {
     if (!activeChallenge) return;
 
     const starsWon = 3;
+    const totalQuestions = 1;
 
     try {
       const token = localStorage.getItem("token");
@@ -109,7 +112,7 @@ useEffect(() => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ stars: starsWon }),
+        body: JSON.stringify({ stars: starsWon, score: score, totalQuestions: totalQuestions }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -129,14 +132,14 @@ useEffect(() => {
   };
 
   useEffect(() => {
-  if (leaderboardRows && leaderboardRows.length > 0) {
-    setUpdatedLeaderboard(
-      leaderboardRows.sort((a, b) => b.total_stars - a.total_stars)
-    );
-  } else {
-    setUpdatedLeaderboard([]);
-  }
-}, [leaderboardRows]);
+    if (leaderboardRows && leaderboardRows.length > 0) {
+      setUpdatedLeaderboard(
+        leaderboardRows.sort((a, b) => b.total_stars - a.total_stars)
+      );
+    } else {
+      setUpdatedLeaderboard([]);
+    }
+  }, [leaderboardRows]);
 
 
 
@@ -235,19 +238,25 @@ useEffect(() => {
           )}
         </div>
       </div>
-
-      {/* Modal z izzivom */}
-      <Modal show={showChallengeModal} size="md" popup onClose={() => setShowChallengeModal(false)}>
-        <div className="bg-white p-6 rounded-lg">
+      <Modal
+        show={showChallengeModal}
+        size="xl"
+        popup
+        onClose={() => {
+          setShowChallengeModal(false);
+          setShowQuiz(false);
+        }}
+      >
+        <div className="p-6">
           {!showQuiz ? (
             <>
-              <h3 className="text-2xl font-bold mb-4">
+              <h3 className="text-2xl font-bold mb-4 text-center">
                 Ali sprejmeš izziv od {activeChallenge?.challenger_username || "neznanega uporabnika"}?
               </h3>
-              <p className="mb-6">
+              <p className="mb-6 text-center">
                 Če izgubiš, boš izgubil zvezdice! Ali želiš sprejeti izziv?
               </p>
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-center gap-4">
                 <Button color="success" onClick={handleAccept}>
                   Sprejmi
                 </Button>
@@ -257,22 +266,18 @@ useEffect(() => {
               </div>
             </>
           ) : (
-            <>
-              <h3 className="text-2xl font-bold mb-4">Kviz izziva</h3>
-              <p className="mb-4">Tukaj je tvoj kviz. (Lahko klikneš Finish, da dokončaš)</p>
-              <p className="mb-4 text-sm text-gray-600">
-                Če uspešno rešiš kviz, boš dobil 3 zvezdice,
-                {activeChallenge?.challenger_username} pa bo izgubil zvezdice.
-              </p>
-              <div className="flex justify-end gap-3">
-                <Button color="success" onClick={handleFinishQuiz}>
-                  Finish Quiz
-                </Button>
-              </div>
-            </>
+            <QuizChallenge
+              challengerUsername={activeChallenge?.challenger_username || "Neznan"}
+              onFinishQuiz={(score, selectedAnswers) => handleFinishQuiz(score, selectedAnswers)}
+              onCancel={() => {
+                setShowQuiz(false);
+                setShowChallengeModal(false);
+              }}
+            />
           )}
         </div>
       </Modal>
+
     </div>
   );
 }

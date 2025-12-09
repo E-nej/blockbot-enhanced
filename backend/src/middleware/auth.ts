@@ -18,8 +18,8 @@ export const authenticate = ( req: AuthRequest, res: Response, next: NextFunctio
         const token = authHeader!.split(' ')[1];
         const config = getConfig();
 
-        const decoded = jwt.verify(token, config.jwt_secret) as { userId: number };
-        req.userId = decoded.userId;
+        const decoded = jwt.verify(token, config.jwt_secret) as any;
+        req.userId = decoded.userId || decoded.id;
 
         return next();
     }
