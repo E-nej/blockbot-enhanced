@@ -19,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Tooltip } from 'flowbite-react';
 import type { Action, GameAction, LoopAction } from '../../types/game';
+import { BlockIcon } from './BlockIcon';
 
 interface ActionBuilderProps {
   availableActions: Action[];
@@ -29,6 +30,7 @@ interface ActionBuilderProps {
 interface ActionBlockProps {
   action: Action;
   isDragging?: boolean;
+  isDisplay?: boolean;
 }
 
 const actionAssets: Record<Action, string> = {
@@ -41,12 +43,12 @@ const actionAssets: Record<Action, string> = {
 };
 
 const actionLabels: Record<Action, string> = {
-  forward: 'Move Forward',
-  turnLeft: 'Turn Left',
-  turnRight: 'Turn Right',
-  jump: 'Jump',
-  use: 'Use Item',
-  loop: 'Loop',
+  forward: 'move (1) steps',
+  turnLeft: 'turn left (90) degrees',
+  turnRight: 'turn right (90) degrees',
+  jump: 'jump',
+  use: 'use key',
+  loop: 'repeat (x)',
 };
 
 const actionTooltips: Record<Action, string> = {
@@ -58,16 +60,25 @@ const actionTooltips: Record<Action, string> = {
   loop: 'Ponavljanje',
 };
 
-function ActionBlock({ action, isDragging }: ActionBlockProps) {
+function ActionBlock({ action, isDragging, isDisplay = true }: ActionBlockProps) {
   return (
     <div
       className={`relative flex items-center justify-center ${isDragging ? 'opacity-50' : ''}`}
     >
-      <img
+      {/* <img
         src={actionAssets[action]}
         alt={actionLabels[action]}
         className="h-16 w-16"
-      />
+      /> */}
+      {/* <BlockIcon key={action} code={{ type: 'action', label: actionLabels[action] }} /> */}
+      {
+        isDisplay ?
+          (
+            <BlockIcon key={action} code={actionLabels[action]} />
+          ) : (
+            <p>{actionLabels[action]}</p>
+          )
+      }
     </div>
   );
 }
@@ -103,12 +114,8 @@ function LoopBlock({
 
   return (
     <div
-      className={`flex h-16 items-center gap-2 rounded-lg bg-[#edf0f3] p-2 ${isDragging ? 'opacity-50' : ''}`}
+      className={`flex items-center gap-2 p-2 ${isDragging ? 'opacity-50' : ''}`}
     >
-      <div className="flex h-full flex-shrink-0 items-center justify-center">
-        <img src={actionAssets.loop} alt="Loop" className="h-12 w-12" />
-      </div>
-
       <div className="flex h-full flex-shrink-0 flex-col items-center justify-center gap-0.5 px-2">
         <button
           onClick={handleIncrement}
@@ -126,7 +133,6 @@ function LoopBlock({
           ▼
         </button>
       </div>
-
       <SortableContext
         items={loopAction.actions.map(
           (_, index) => `${loopId}-nested-${index}`,
@@ -135,8 +141,11 @@ function LoopBlock({
       >
         <div
           ref={setDropRef}
-          className="flex h-full flex-1 flex-wrap items-center gap-2 px-2"
+          className="flex h-full flex-1 flex-col gap-2 px-2"
         >
+          <div>
+            repeat ({loopAction.iterations})
+          </div>
           {loopAction.actions.length === 0 ? (
             <span className="text-sm text-gray-400">Vstavi akcijo</span>
           ) : (
@@ -151,6 +160,9 @@ function LoopBlock({
               ) : null,
             )
           )}
+          <div>
+            end
+          </div>
         </div>
       </SortableContext>
     </div>
@@ -184,11 +196,14 @@ function NestedAction({ action, id, onRemove }: NestedActionProps) {
       <div
         className={`relative flex items-center justify-center ${isDragging ? 'opacity-50' : ''}`}
       >
-        <img
+        {/* <img
           src={actionAssets[action]}
           alt={actionLabels[action]}
           className="h-12 w-12"
-        />
+        /> */}
+        {/* <BlockIcon key={action} code={actionLabels[action]} /> */}
+        <p>{actionLabels[action]}</p>
+
       </div>
       <button
         onClick={(e) => {
@@ -248,11 +263,11 @@ function SortableAction({
           loopAction={action}
           isDragging={isDragging}
           loopId={id}
-          onNestedRemove={onNestedRemove || (() => {})}
-          onIterationsChange={onIterationsChange || (() => {})}
+          onNestedRemove={onNestedRemove || (() => { })}
+          onIterationsChange={onIterationsChange || (() => { })}
         />
       ) : (
-        <ActionBlock action={action as Action} isDragging={isDragging} />
+        <ActionBlock action={action as Action} isDragging={isDragging} isDisplay={false} />
       )}
       <button
         onClick={(e) => {
@@ -268,6 +283,7 @@ function SortableAction({
   );
 }
 
+// ne rabim gleat
 interface DraggableActionProps {
   action: Action;
   id: string;
@@ -533,6 +549,20 @@ export function ActionBuilder({
   );
 }
 
+function buildScratchCode(actions: GameAction[]): string {
+  const build = (act: GameAction | Action): string => {
+    if (typeof act === 'string') {
+      return actionLabels[act];
+    } else {
+      // loop
+      const inner = act.actions.map((a) => build(a)).join('\n  ');
+      return `repeat (${act.iterations}) \n  ${inner}\nend`;
+    }
+  };
+
+  return actions.map((a) => build(a)).join('\n');
+}
+
 interface ActionsDropZoneProps {
   actions: GameAction[];
   onRemove: (index: number) => void;
@@ -549,14 +579,20 @@ function ActionsDropZone({
   const { setNodeRef } = useDroppable({ id: 'actions-dropzone' });
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-row">
+      <div className="w-1/2 mb-4 flex justify-center items-start">
+        {actions.length > 0 && (
+          <BlockIcon code={buildScratchCode(actions)} />
+        )}
+      </div>
+
       <SortableContext
         items={actions.map((_, index) => `action-${index}`)}
         strategy={rectSortingStrategy}
       >
         <div
           ref={setNodeRef}
-          className="flex flex-1 flex-wrap content-center items-center justify-center gap-2 overflow-y-auto p-4"
+          className="w-1/2 flex flex-col content-center items-center justify-center gap-2 overflow-y-auto p-4 bg-white rounded-xl border border-gray-300"
         >
           {actions.length === 0 ? (
             <p className="text-xl font-semibold text-white">
@@ -580,6 +616,8 @@ function ActionsDropZone({
           )}
         </div>
       </SortableContext>
+
     </div>
   );
+
 }

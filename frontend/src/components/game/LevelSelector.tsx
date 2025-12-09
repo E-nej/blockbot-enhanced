@@ -3,6 +3,7 @@ import type { Level, Action } from '../../types/game';
 import { useState, useMemo } from 'react';
 import { useGameCompletion } from '../../hooks/useGameCompletion';
 import { FaStar } from 'react-icons/fa';
+import { BlockIcon } from './BlockIcon';
 
 interface LevelSelectProps {
   levels: Level[];
@@ -11,22 +12,23 @@ interface LevelSelectProps {
   error?: string | null;
 }
 
-const ACTION_ICONS: Record<Action, string> = {
-  forward: '/game_assets/actions/forward.svg',
-  turnLeft: '/game_assets/actions/turn-left.svg',
-  turnRight: '/game_assets/actions/turn-right.svg',
-  jump: '/game_assets/actions/jump.svg',
-  use: '/game_assets/actions/use.svg',
-  loop: '/game_assets/actions/loop.svg',
+const ACTION_BLOCKS: Record<Action, string> = {
+  forward: 'forward',
+  turnLeft: 'turn left',
+  turnRight: 'turn right',
+  jump: 'jump',
+  use: 'use',
+  loop: 'repeat',
 };
 
+
 const ACTION_NAMES: Record<Action, string> = {
-  forward: 'Forward',
-  turnLeft: 'Turn Left',
-  turnRight: 'Turn Right',
-  jump: 'Jump',
-  use: 'Use',
-  loop: 'Loop',
+  forward: 'move (1) steps',
+  turnLeft: 'turn left (90) degrees',
+  turnRight: 'turn right (90) degrees',
+  jump: 'jump',
+  use: 'use key',
+  loop: 'repeat (x)',
 };
 
 export function LevelSelector({
@@ -118,14 +120,17 @@ export function LevelSelector({
                       Ukazi:
                     </h4>
                     <div className="flex flex-wrap gap-1">
-                      {currentLevel.actions.map((action) => (
-                        <img
-                          src={ACTION_ICONS[action]}
-                          alt={ACTION_NAMES[action]}
-                          key={action}
-                          className="h-12 w-12"
-                        />
-                      ))}
+                      {
+                        // currentLevel.actions.map((action) => (
+                        //   <BlockIcon key={action} code={ACTION_NAMES[action]} />
+                        // ))
+
+                        currentLevel.actions.map((action) => {
+                          console.log("CODE:", ACTION_NAMES[action]);
+                          return <BlockIcon key={action} code={ACTION_NAMES[action]} />;
+                        })
+
+                      }
                     </div>
                   </div>
 
@@ -159,13 +164,12 @@ export function LevelSelector({
                       <Button
                         onClick={() => setSelectedLevel(level)}
                         outline={currentLevel?.index !== level.index}
-                        className={`h-12 w-12 border-2 text-lg font-bold ${
-                          currentLevel?.index === level.index
-                            ? 'bg-primary-600 hover:bg-primary-700'
-                            : isCompleted
-                              ? 'bg-primary-800 hover:bg-primary-900'
-                              : ''
-                        } text-white`}
+                        className={`h-12 w-12 border-2 text-lg font-bold ${currentLevel?.index === level.index
+                          ? 'bg-primary-600 hover:bg-primary-700'
+                          : isCompleted
+                            ? 'bg-primary-800 hover:bg-primary-900'
+                            : ''
+                          } text-white`}
                       >
                         {level.index}
                       </Button>
