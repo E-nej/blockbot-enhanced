@@ -33,5 +33,7 @@ export function BlockIcon({ code }: { code: string }) {
     }
   }, [code]);
 
+  // console.log("DEBUG", code);
+
   return <div ref={ref} />;
 }

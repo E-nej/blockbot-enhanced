@@ -19,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Tooltip } from 'flowbite-react';
 import type { Action, GameAction, LoopAction } from '../../types/game';
+import { BlockIcon } from './BlockIcon';
 
 interface ActionBuilderProps {
   availableActions: Action[];
@@ -29,6 +30,7 @@ interface ActionBuilderProps {
 interface ActionBlockProps {
   action: Action;
   isDragging?: boolean;
+  isDisplay?: boolean;
 }
 
 const actionAssets: Record<Action, string> = {
@@ -41,12 +43,12 @@ const actionAssets: Record<Action, string> = {
 };
 
 const actionLabels: Record<Action, string> = {
-  forward: 'Move Forward',
-  turnLeft: 'Turn Left',
-  turnRight: 'Turn Right',
-  jump: 'Jump',
-  use: 'Use Item',
-  loop: 'Loop',
+  forward: 'move (1) steps',
+  turnLeft: 'turn left (90) degrees',
+  turnRight: 'turn right (90) degrees',
+  jump: 'jump',
+  use: 'use key',
+  loop: 'repeat (x)',
 };
 
 const actionTooltips: Record<Action, string> = {
@@ -58,16 +60,25 @@ const actionTooltips: Record<Action, string> = {
   loop: 'Ponavljanje',
 };
 
-function ActionBlock({ action, isDragging }: ActionBlockProps) {
+function ActionBlock({ action, isDragging, isDisplay = true }: ActionBlockProps) {
   return (
     <div
       className={`relative flex items-center justify-center ${isDragging ? 'opacity-50' : ''}`}
     >
-      <img
+      {/* <img
         src={actionAssets[action]}
         alt={actionLabels[action]}
         className="h-16 w-16"
-      />
+      /> */}
+      {/* <BlockIcon key={action} code={{ type: 'action', label: actionLabels[action] }} /> */}
+      {
+        isDisplay ?
+          (
+            <BlockIcon key={action} code={actionLabels[action]} />
+          ) : (
+            <p>{actionLabels[action]}</p>
+          )
+      }
     </div>
   );
 }
@@ -106,7 +117,8 @@ function LoopBlock({
       className={`flex h-16 items-center gap-2 rounded-lg bg-[#edf0f3] p-2 ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="flex h-full flex-shrink-0 items-center justify-center">
-        <img src={actionAssets.loop} alt="Loop" className="h-12 w-12" />
+        {/* <BlockIcon key="loop" code={actionLabels.loop} /> */}
+        {/* <img src={actionAssets.loop} alt="Loop" className="h-12 w-12" /> */}
       </div>
 
       <div className="flex h-full flex-shrink-0 flex-col items-center justify-center gap-0.5 px-2">
@@ -184,11 +196,13 @@ function NestedAction({ action, id, onRemove }: NestedActionProps) {
       <div
         className={`relative flex items-center justify-center ${isDragging ? 'opacity-50' : ''}`}
       >
-        <img
+        {/* <img
           src={actionAssets[action]}
           alt={actionLabels[action]}
           className="h-12 w-12"
-        />
+        /> */}
+        <BlockIcon key={action} code={actionLabels[action]} />
+
       </div>
       <button
         onClick={(e) => {
@@ -248,11 +262,11 @@ function SortableAction({
           loopAction={action}
           isDragging={isDragging}
           loopId={id}
-          onNestedRemove={onNestedRemove || (() => {})}
-          onIterationsChange={onIterationsChange || (() => {})}
+          onNestedRemove={onNestedRemove || (() => { })}
+          onIterationsChange={onIterationsChange || (() => { })}
         />
       ) : (
-        <ActionBlock action={action as Action} isDragging={isDragging} />
+        <ActionBlock action={action as Action} isDragging={isDragging} isDisplay={false} />
       )}
       <button
         onClick={(e) => {
@@ -268,6 +282,7 @@ function SortableAction({
   );
 }
 
+// ne rabim gleat
 interface DraggableActionProps {
   action: Action;
   id: string;
@@ -533,6 +548,20 @@ export function ActionBuilder({
   );
 }
 
+function buildScratchCode(actions: GameAction[]): string {
+  const build = (act: GameAction | Action): string => {
+    if (typeof act === 'string') {
+      return actionLabels[act];
+    } else {
+      // loop
+      const inner = act.actions.map((a) => build(a)).join('\n  ');
+      return `repeat (${act.iterations}) \n  ${inner}\nend`;
+    }
+  };
+
+  return actions.map((a) => build(a)).join('\n');
+}
+
 interface ActionsDropZoneProps {
   actions: GameAction[];
   onRemove: (index: number) => void;
@@ -550,6 +579,13 @@ function ActionsDropZone({
 
   return (
     <div className="flex h-full flex-col">
+      {
+        actions.length > 0 && (
+          <div className='mb-4 w-full'>
+            <BlockIcon code={buildScratchCode(actions)} />
+          </div>
+        )
+      }
       <SortableContext
         items={actions.map((_, index) => `action-${index}`)}
         strategy={rectSortingStrategy}
