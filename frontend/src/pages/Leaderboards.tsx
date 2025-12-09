@@ -98,11 +98,12 @@ export default function Leaderboards() {
     setShowQuiz(true);
   };
 
-  const handleFinishQuiz = async (score: number, selectedAnswers: number[]) => {
+  const handleFinishQuiz = async (score: number, selectedAnswers: number[], totalQuestions: number) => {
     if (!activeChallenge) return;
 
-    const starsWon = 3;
-    const totalQuestions = 1;
+    const starsWon = 3 * score;
+
+    console.log("handleFinishQuiz called with:", { score, totalQuestions, starsWon });
 
     try {
       const token = localStorage.getItem("token");
@@ -112,10 +113,17 @@ export default function Leaderboards() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ stars: starsWon, score: score, totalQuestions: totalQuestions }),
+        body: JSON.stringify({
+          stars: starsWon,
+          score: score,
+          totalQuestions: totalQuestions
+        }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      console.log("Challenge finish response:", data);
 
       setHandledChallenges(prev => new Set(prev).add(activeChallenge.id));
 
@@ -131,18 +139,6 @@ export default function Leaderboards() {
     }
   };
 
-  useEffect(() => {
-    if (leaderboardRows && leaderboardRows.length > 0) {
-      setUpdatedLeaderboard(
-        leaderboardRows.sort((a, b) => b.total_stars - a.total_stars)
-      );
-    } else {
-      setUpdatedLeaderboard([]);
-    }
-  }, [leaderboardRows]);
-
-
-
   const handleDecline = () => {
     if (!activeChallenge) return;
     setHandledChallenges(prev => new Set(prev).add(activeChallenge.id));
@@ -157,9 +153,9 @@ export default function Leaderboards() {
       <div
         className="relative mx-auto overflow-hidden rounded-[8rem] bg-[#0F2F2C]"
         style={{
-          aspectRatio: '344/216',
-          width: 'min(calc(100vw - 240px), calc((100vh - 240px) * 344/216))',
-          height: 'min(calc(100vw - 240px) * 216/344, calc(100vh - 240px))',
+          aspectRatio: '344/196',
+          width: 'min(calc(100vw - 160px), calc((100vh - 160px) * 344/196))',
+          height: 'min(calc(100vw - 160px) * 196/344, calc(100vh - 160px))',
           boxShadow: '0 0 0 8px #C2CED9, 0 0 0 48px #EBEEF3',
         }}
       >
@@ -186,8 +182,6 @@ export default function Leaderboards() {
                 <TableBody className="divide-y">
                   {updatedLeaderboard.map((row, index) => {
                     const challenged = isChallenged(row.user);
-                    const hasStarChange = starChanges[row.user] !== undefined;
-                    const starChange = starChanges[row.user] || 0;
 
                     return (
                       <TableRow key={row.user} className="border-gray-600 bg-transparent">
@@ -195,8 +189,8 @@ export default function Leaderboards() {
                         <TableCell className="text-xl text-white flex items-center gap-2">
                           {row.user}
                           {challenged && (
-                            <span className="bg-red-500 text-white px-2 py-1 rounded-full text-sm">
-                              ⚡ Challenged!
+                            <span className="inline-flex items-center gap-1 bg-gradient-to-r from-teal-400 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg animate-pulse">
+                              ⚔️ Izzvan
                             </span>
                           )}
                         </TableCell>
@@ -206,26 +200,23 @@ export default function Leaderboards() {
                               <FaStar />
                               {row.total_stars}
                             </div>
-                            {hasStarChange && (
-                              <span className={`text-sm font-bold ${starChange > 0 ? 'text-green-500' : 'text-red-500'
-                                }`}>
-                                {starChange > 0 ? `+${starChange}` : starChange}
-                              </span>
-                            )}
                           </div>
                         </TableCell>
                         <TableCell>
                           {row.user === userName ? (
                             <span className="text-xl font-medium text-white">To si ti!</span>
+                          ) : challenged ? (
+                            <span className="inline-flex items-center gap-2 text-gray-400 text-sm italic">
+                              Izziv poslan
+                            </span>
                           ) : (
                             <Button
                               size="md"
                               color="light"
-                              className="text-[#0F2F2C] text-xl font-bold"
+                              className="text-[#0F2F2C] text-xl font-bold hover:scale-105 transition-transform"
                               onClick={() => sendChallenge(row.user)}
-                              disabled={challenged}
                             >
-                              {challenged ? 'Izziv poslan' : 'Izzovi'}
+                              ⚔️ Izzovi
                             </Button>
                           )}
                         </TableCell>
@@ -247,28 +238,34 @@ export default function Leaderboards() {
           setShowQuiz(false);
         }}
       >
-        <div className="p-6">
+        <div className="p-8">
           {!showQuiz ? (
-            <>
-              <h3 className="text-2xl font-bold mb-4 text-center">
-                Ali sprejmeš izziv od {activeChallenge?.challenger_username || "neznanega uporabnika"}?
+            <div className="flex flex-col items-center">
+              <div className="w-20 h-20 bg-gradient-to-r from-teal-600 to-teal-400 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                <span className="text-4xl">⚔️</span>
+              </div>
+              <h3 className="text-lg text-center mb-4">
+                <span className="font-bold text-teal-600">{activeChallenge?.challenger_username || "Neznan"}</span> te izziva na dvoboj
               </h3>
-              <p className="mb-6 text-center">
-                Če izgubiš, boš izgubil zvezdice! Ali želiš sprejeti izziv?
-              </p>
-              <div className="flex justify-center gap-4">
-                <Button color="success" onClick={handleAccept}>
-                  Sprejmi
+              <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-3 mb-6 flex items-center gap-2">
+                <span className="text-teal-600">⚠️</span>
+                <p className="text-sm text-teal-700">
+                  Če ne odgovoriš pravilno na nobeno vprašanje, izgubiš 3 zvezdice!
+                </p>
+              </div>
+              <div className="flex gap-4 w-full max-w-xs">
+                <Button color="teal" onClick={handleAccept} className="flex-1 py-2 text-lg">
+                  ✓ Sprejmi
                 </Button>
-                <Button color="gray" onClick={handleDecline}>
-                  Zavrni
+                <Button color="gray" onClick={handleDecline} className="flex-1 py-3 text-lg">
+                  ✗ Zavrni
                 </Button>
               </div>
-            </>
+            </div>
           ) : (
             <QuizChallenge
               challengerUsername={activeChallenge?.challenger_username || "Neznan"}
-              onFinishQuiz={(score, selectedAnswers) => handleFinishQuiz(score, selectedAnswers)}
+              onFinishQuiz={handleFinishQuiz}
               onCancel={() => {
                 setShowQuiz(false);
                 setShowChallengeModal(false);
