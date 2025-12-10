@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import scratchblocks from "scratchblocks";
 
-export function BlockIcon({ code }: { code: string }) {
+export function BlockIcon({ code, scale = 1 }: { code: string; scale?: number }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,13 +25,13 @@ export function BlockIcon({ code }: { code: string }) {
       scratchblocks.renderMatching(`pre.${uniqueClass}`, {
         style: "scratch3",
         languages: ["en"],
-        scale: 1,
+        scale: scale,
       });
     } catch (err) {
       console.error("Scratchblocks render error:", err, "code:", code);
       ref.current.innerHTML = "<!-- invalid block -->";
     }
-  }, [code]);
+  }, [code, scale]);
 
   // console.log("DEBUG", code);
 

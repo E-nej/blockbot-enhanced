@@ -31,6 +31,7 @@ interface ActionBlockProps {
   action: Action;
   isDragging?: boolean;
   isDisplay?: boolean;
+  scale?: number;
 }
 
 const actionLabels: Record<Action, string> = {
@@ -51,16 +52,21 @@ const actionTooltips: Record<Action, string> = {
   loop: 'Ponavljanje',
 };
 
-function ActionBlock({ action, isDragging, isDisplay = true }: ActionBlockProps) {
+function ActionBlock({ action, isDragging, isDisplay = true, scale = 1 }: ActionBlockProps) {
+  const containerSize = scale === 1 ? 'w-auto' : 'w-12';
   return (
     <div
-      className={`${isDragging ? 'opacity-50' : ''}`}
-      style={{ marginLeft: '30px' }}
+      className={`${isDragging ? 'opacity-50' : ''} ${containerSize}`}
+      style={{ 
+        marginLeft: scale === 1 ? '30px' : '0px', 
+        transform: `scale(${scale})`,
+        transformOrigin: 'left center'
+      }}
     >
       {
         isDisplay ?
           (
-            <BlockIcon key={action} code={actionLabels[action]} />
+            <BlockIcon key={action} code={actionLabels[action]} scale={scale} />
           ) : (
             <pre>
               <code>
@@ -305,7 +311,7 @@ function DraggableAction({ action, id }: DraggableActionProps) {
         {...attributes}
         {...listeners}
       >
-        <ActionBlock action={action} isDragging={isDragging} />
+        <ActionBlock action={action} isDragging={isDragging} scale={1} />
       </div>
     </Tooltip>
   );
@@ -593,7 +599,7 @@ function ActionsDropZone({
       >
         <div
           ref={setNodeRef}
-          className="w-1/2 h-auto max-h-90 text-start gap-2 p-1 bg-gray-50 rounded-xl"
+          className="w-1/2 h-auto max-h-120 text-start gap-2 p-1 bg-gray-50 rounded-xl"
         >
           <div className="h-full w-full flex flex-col p-2 rounded-lg bg-gray-800 text-gray-100 font-mono overflow-y-auto">
             {actions.length === 0 ? (

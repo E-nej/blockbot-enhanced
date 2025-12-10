@@ -2,7 +2,7 @@
     {
         "index": 1,
         "name": "Prvi koraki",
-        "description": "Nauči se premikati naprej. Uporabi kocko za premik naprej do cilja.",
+        "description": "Spoznaj osnove programiranja! Uporabi ukaz 'premakni se naprej' za dosego cilja.",
         "actions": [
             "forward"
         ],
@@ -83,8 +83,8 @@
     },
     {
         "index": 2,
-        "name": "Obrni se",
-        "description": "Premakni se in se obrni v levo da prideš do cilja.",
+        "name": "Zaporedje ukazov",
+        "description": "Programi izvajajo ukaze po vrsti. Sestavi zaporedje: premik in zavoj levo.",
         "actions": [
             "forward",
             "turnLeft"
@@ -166,8 +166,8 @@
     },
     {
         "index": 3,
-        "name": "Obrni se v drugo smer",
-        "description": "Premakni se in se obrni v desno da prideš do cilja.",
+        "name": "Smeri v kodi",
+        "description": "Nauči se upravljati s smerjo. Kombiniraj premik in zavoj desno.",
         "actions": [
             "forward",
             "turnRight"
@@ -249,8 +249,8 @@
     },
     {
         "index": 4,
-        "name": "Skoči čez",
-        "description": "Uporabi akcijo skoči naprej in premagaj ovire na svoji poti.",
+        "name": "Pogojno izvajanje",
+        "description": "Ko naletimo na oviro, moramo izvesti poseben ukaz - skok. Razširi svoj algoritem!",
         "actions": [
             "forward",
             "turnLeft",
@@ -334,8 +334,8 @@
     },
     {
         "index": 5,
-        "name": "Ključ do uspeha",
-        "description": "Najdi ključ in odkleni ključavnico, ki ti blokira pot.",
+        "name": "Delo s spremenljivkami",
+        "description": "Ključ deluje kot spremenljivka v programu. Najprej ga pridobi, nato uporabi za odklepanje.",
         "actions": [
             "forward",
             "turnLeft",
@@ -446,7 +446,7 @@
     {
         "index": 6,
         "name": "Prvo potovanje",
-        "description": "Z pridobljenim znanjem lahko grema na daljšo potovanje.",
+        "description": "Združi vse naučene ukaze v daljši program. Načrtuj pot korak za korakom.",
         "actions": [
             "forward",
             "turnLeft",
@@ -557,8 +557,8 @@
     },
     {
         "index": 7,
-        "name": "Ponavljaj se",
-        "description": "Uporabi zanke za učinkovito premikanje.",
+        "name": "Uvod v zanke",
+        "description": "Namesto ponavljanja enakih ukazov uporabi zanko 'repeat'. Programiraj pametneje!",
         "actions": [
             "forward",
             "turnLeft",
@@ -668,8 +668,8 @@
     },
     {
         "index": 8,
-        "name": "Glavni izziv",
-        "description": "Uporabi vse naučene veščine, da dosežeš cilj.",
+        "name": "Optimizacija kode",
+        "description": "Uporabi zanke in vse ukaze za najučinkovitejšo rešitev. Pokaži svoje znanje!",
         "actions": [
             "forward",
             "turnLeft",

@@ -127,7 +127,7 @@ export function LevelSelector({
 
                         currentLevel.actions.map((action) => {
                           console.log("CODE:", ACTION_NAMES[action]);
-                          return <BlockIcon key={action} code={ACTION_NAMES[action]} />;
+                          return <BlockIcon key={action} code={ACTION_NAMES[action]} scale={0.8} />;
                         })
 
                       }
