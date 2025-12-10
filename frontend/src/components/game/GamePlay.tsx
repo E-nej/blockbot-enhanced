@@ -78,13 +78,13 @@ export function GamePlay({
     } else if (finalState.isComplete) {
       const confetti = () => {
         const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'];
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 150; i++) {
           const particle = document.createElement('div');
           particle.style.position = 'fixed';
           particle.style.left = '50%';
           particle.style.top = '20%';
-          particle.style.width = '10px';
-          particle.style.height = '10px';
+          particle.style.width = '7px';
+          particle.style.height = '7px';
           particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
           particle.style.borderRadius = '50%';
           particle.style.pointerEvents = 'none';
@@ -97,10 +97,10 @@ export function GamePlay({
             y = 0,
             vy = -velocity;
 
-          const gravity = 0.2;
+          const gravity = 0.9;
 
           const animate = () => {
-            x += Math.cos(angle) * velocity * 0.8;
+            x += Math.cos(angle) * velocity;
             y += vy;
             vy += gravity;
             particle.style.transform = `translate(${x}px, ${y}px)`;
