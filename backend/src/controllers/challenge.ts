@@ -79,9 +79,9 @@ export const makeChallengeController = ({ queries }: AppContext): ChallengeContr
                 if (!req.userId) return next(new HttpError(401, "Unauthorized"));
 
                 const challengeId = Number(req.params.id);
-                const { stars, score, totalQuestions } = req.body;
+                const { score, totalQuestions } = req.body;
 
-                if (!challengeId || stars === undefined || score === undefined) {
+                if (!challengeId || score === undefined) {
                     return next(new HttpError(400, "Missing challengeId, stars or score"));
                 }
 
@@ -94,18 +94,43 @@ export const makeChallengeController = ({ queries }: AppContext): ChallengeContr
                 const challengerId = challenge.challenger_id;
                 const challengeeId = challenge.challengee_id;
 
+                const halfQuestions = Math.ceil(totalQuestions / 2);
+                const correctAnswers = score;
+                const wrongAnswers = totalQuestions - score;
+                const answerDifference = Math.abs(correctAnswers - wrongAnswers);
+
                 let loserUserId: number;
                 let starsToDeduct: number;
+                let winnerUserId: number;
+                let resultMessage: string;
 
-                if (score === 0) {
-                    loserUserId = challengeeId;
-                    starsToDeduct = 3;
-                } else {
+                if (score >= halfQuestions) {
                     loserUserId = challengerId;
-                    starsToDeduct = stars; 
+                    winnerUserId = challengeeId;
+
+                    if (answerDifference <= 1) {
+                        starsToDeduct = 10;
+                    } else if (answerDifference <= 3) {
+                        starsToDeduct = 20;
+                    } else {
+                        starsToDeduct = 30;
+                    }
+                    resultMessage = `Challengee won with ${score}/${totalQuestions}. Challenger loses ${starsToDeduct} stars.`;
+                } else {
+                    loserUserId = challengeeId;
+                    winnerUserId = challengerId;
+
+                    if (answerDifference <= 1) {
+                        starsToDeduct = 20;
+                    } else {
+                        starsToDeduct = 30;
+                    }
+                    resultMessage = `Challenger won. Challengee scored ${score}/${totalQuestions} and loses ${starsToDeduct} stars.`;
                 }
 
+
                 const starsDeducted = await queries.deductStarsFromLevels(loserUserId, starsToDeduct);
+
 
                 const userStats = await queries.getUserStars(loserUserId);
                 const totalStarsNow = userStats?.total_stars ?? 0;

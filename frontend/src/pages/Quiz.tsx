@@ -340,16 +340,53 @@ export default function QuizChallenge({
         onFinishQuiz(finalScore, selectedAnswers, questions.length);
     };
 
+    const calculateStarImpact = () => {
+        const halfQuestions = Math.ceil(questions.length / 2);
+        const answerDifference = Math.abs(score - (questions.length - score));
+
+        if (score >= halfQuestions) {
+            if (answerDifference <= 1) return 10;
+            if (answerDifference <= 3) return 20;
+            return 30;
+        } else {
+            if (answerDifference <= 1) return 20;
+            return 30;
+        }
+    };
+
     if (quizFinished) {
+        const halfQuestions = Math.ceil(questions.length / 2);
+        const isWinner = score >= halfQuestions;
+        const starImpact = calculateStarImpact();
+
         return (
             <div className="p-8 bg-white max-w-md mx-auto mt-10">
                 <h4 className="text-2xl font-bold mb-4 text-center">Kviz zaključen!</h4>
-                <h4 className={`mb-6 text-center text-lg font-semibold ${score >= Math.ceil(questions.length / 2) ? 'text-teal-600' : 'text-red-500'}`}>
-                    Dosegli ste <span className="font-bold">{score}</span> od <span className="font-bold">{questions.length}</span> točk.<br />
-                    {score >= Math.ceil(questions.length / 2)
-                        ? "Čestitamo, zmagali ste izziv :)"
-                        : "Žal niste uspeli premagati izziva :("}
-                </h4>
+                <div className={`mb-6 text-center ${isWinner ? 'text-teal-600' : 'text-red-500'}`}>
+                    <p className="text-lg font-semibold mb-2">
+                        Dosegli ste <span className="font-bold">{score}</span> od <span className="font-bold">{questions.length}</span> točk.
+                    </p>
+                    <div className="mt-4 p-4 rounded-lg bg-gray-50 border-2 border-dashed"
+                        style={{ borderColor: isWinner ? '#0d9488' : '#ef4444' }}>
+                        {isWinner ? (
+                            <>
+                                <p className="text-lg font-bold text-teal-600 mb-1">🎉 Čestitamo, zmagali ste!</p>
+                                <p className="text-sm text-gray-600">
+                                    <span className="font-semibold">{challengerUsername}</span> izgubi{' '}
+                                    <span className="font-bold text-teal-600">{starImpact} ⭐</span>
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-lg font-bold text-red-500 mb-1">😔 Žal niste uspeli</p>
+                                <p className="text-sm text-gray-600">
+                                    Izgubili boste{' '}
+                                    <span className="font-bold text-red-500">{starImpact} ⭐</span>
+                                </p>
+                            </>
+                        )}
+                    </div>
+                </div>
                 <div className="flex justify-center gap-4">
                     <Button color="gray" onClick={onCancel}>
                         ← Nazaj

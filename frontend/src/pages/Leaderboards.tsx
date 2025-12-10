@@ -25,7 +25,7 @@ export default function Leaderboards() {
   const [showChallengeModal, setShowChallengeModal] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
 
-  const [starChanges, setStarChanges] = useState<{ [key: string]: number }>({});
+  // const [starChanges, setStarChanges] = useState<{ [key: string]: number }>({});
   const [updatedLeaderboard, setUpdatedLeaderboard] = useState<LeaderboardRow[]>([]);
   const [handledChallenges, setHandledChallenges] = useState<Set<number>>(() => {
     const saved = localStorage.getItem('handledChallenges');
@@ -101,9 +101,9 @@ export default function Leaderboards() {
   const handleFinishQuiz = async (score: number, selectedAnswers: number[], totalQuestions: number) => {
     if (!activeChallenge) return;
 
-    const starsWon = 3 * score;
+    //sconst starsWon = 3 * score;
 
-    console.log("handleFinishQuiz called with:", { score, totalQuestions, starsWon });
+    // console.log("handleFinishQuiz called with:", { score, totalQuestions, starsWon });
 
     try {
       const token = localStorage.getItem("token");
@@ -114,7 +114,7 @@ export default function Leaderboards() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          stars: starsWon,
+          //stars: starsWon,
           score: score,
           totalQuestions: totalQuestions
         }),
@@ -250,7 +250,7 @@ export default function Leaderboards() {
               <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-3 mb-6 flex items-center gap-2">
                 <span className="text-teal-600">⚠️</span>
                 <p className="text-sm text-teal-700">
-                  Če ne odgovoriš pravilno na nobeno vprašanje, izgubiš 3 zvezdice!
+                  Zvezdice izgubi poraženec - več pravilnih odgovorov = večja kazen za nasprotnika!
                 </p>
               </div>
               <div className="flex gap-4 w-full max-w-xs">
