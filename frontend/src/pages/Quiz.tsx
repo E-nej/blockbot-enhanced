@@ -346,7 +346,7 @@ export default function QuizChallenge({
 
         if (score >= halfQuestions) {
             if (answerDifference <= 1) return 10;
-            if (answerDifference <= 3) return 20;
+            if (answerDifference < 3) return 20;
             return 30;
         } else {
             if (answerDifference <= 1) return 20;

@@ -110,7 +110,7 @@ export const makeChallengeController = ({ queries }: AppContext): ChallengeContr
 
                     if (answerDifference <= 1) {
                         starsToDeduct = 10;
-                    } else if (answerDifference <= 3) {
+                    } else if (answerDifference < 3) {
                         starsToDeduct = 20;
                     } else {
                         starsToDeduct = 30;
