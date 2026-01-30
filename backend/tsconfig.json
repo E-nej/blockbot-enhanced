@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "react-jsx",
     "lib": ["es2022"],
     "target": "es2022",
     "module": "NodeNext",
